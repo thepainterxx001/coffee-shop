@@ -55,26 +55,42 @@ document.getElementById('search').addEventListener('input', (e) => {
     
     const hero = document.getElementById('heroSection');
     const featured = document.getElementById('featuredStrip');
+    const featuredTitle = document.getElementById('featuredTitle');
+    const productsTitle = document.getElementById('productsTitle');
 
     if (!q) {
-        // Default style (flex/block)
+      // reset original state
         if (hero) hero.style.display = ''; 
         if (featured) featured.style.display = '';
+        if (featuredTitle) featuredTitle.style.display = '';
+        if (productsTitle) productsTitle.textContent = 'Shop Products';
 
         renderFeatured(); 
         renderGrid(PRODUCTS);
         return;
     }
 
-    // 3. HIDE FOR SEARCH
+    // Hide elements when search
     if (hero) hero.style.display = 'none';
     if (featured) featured.style.display = 'none';
+    if (featuredTitle) featuredTitle.style.display = 'none';
 
-    // 4. FILTER
+
     const filtered = PRODUCTS.filter(p => 
         p.name.toLowerCase().includes(q) || 
         p.description.toLowerCase().includes(q)
     );
+
+    // Change the product title based on the search if it has a result or none
+    if (productsTitle) {
+        if (filtered.length === 0) {
+            productsTitle.textContent = `No results found for "${q}"`;
+            productsTitle.style.color = "#888";
+        } else {
+            productsTitle.textContent = `Search results for "${q}"`;
+            productsTitle.style.color = "";
+        }
+    }
     
     renderGrid(filtered);
 });
