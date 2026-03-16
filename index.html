@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAPE-LING KA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">KAPE-LING KA</div>
+            <div class="search"><input type="text" id="search" placeholder="Search products, e.g. 'coffee'"></div>
+            <div class="nav-actions">
+                <button class="icon-btn" id="catalogBtn">Categories</button>
+                <button class="icon-btn" id="accountBtn">Account</button>
+                <button class="icon-btn" id="cartBtn">Cart <span id="count" class="cart-count">0</span></button>
+            </div>
+        </header>
+
+        <!-- HERO -->
+         <section class="hero" id="heroSection">
+            <div class="hero-card">
+                <h1>Kape-Ling Ka—Sa bawat gabi at umaga, kasama ka.</h1>
+                <p>Kape-Ling Ka celebrates the Filipino way of sharing coffee—with laughter, with stories, with the people who matter most. Because coffee isn’t just a drink… it’s a moment shared. <br><br>Browse our bestsellers and discover flavors made for moments together.</p>
+                <div style="margin-top: 16px; display: flex; gap: 10px;">
+                    <button class="btn" id="shopNow">Shop all</button>
+                    <button class="btn ghost" id="learn">About</button>
+                </div>
+                <div style="margin-top: 18px; display: flex; gap: 12px;">
+                    <div style="flex: 1; background: #f4efec; padding: 10px; border-radius: 10px; box-shadow: 0 8px 20px rgb(0, 0, 0, 0.1);">
+                        <small style="color: #666;">Free shipping over</small>
+                        <div style="font-weight: 700;">₱1, 000</div>
+                    </div>
+                    <div style="flex: 1; background: #f4efec; padding: 10px; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);">
+                        <small style="color: #666;">Return policy</small>
+                        <div style="font-weight: 700;">7 days</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-image">
+                <img src="images/hero_shop_image.png" alt="hero">
+            </div>
+         </section>
+
+        <!-- FEATURED -->
+         <h3>Featured</h3>
+         <div class="featured" id="featuredStrip"></div>
+
+        <!-- PRODUCTS -->
+         <h3>Shop Products</h3>
+         <div class="grid" id="productsGrid"></div>
+
+       
+         <footer>
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; color: #666; font-size: 12px;">
+                <div>© Kape-Ling Ka. All rights reserved.</div>
+                <!-- <div style="color: #666;">EST 2025. All rights reserved.</div> -->
+            </div>
+         </footer>
+    </div>
+
+    <!-- CART PANEL (HIDDEN by DEFAULT) -->
+     <div id="cartPanel" class="cart-panel" style="display: none;">
+        <h4>Your Cart</h4>
+        <div id="cartList"></div>
+        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div><strong>Total:</strong> ₱<span id="cartTotal">0.00</span></div>
+            <div class="cart-actions">
+                <button class="btn ghost" onclick="clearCart()">Clear</button>
+                <button class="btn" onclick="checkout()">Checkout</button>
+            </div>
+        </div>
+     </div>
+
+    <!-- PRODUCT MODAL -->
+     <div id="modal" class="modal" onclick="closeModal(event)">
+        <div class="panel" onclick="event.stopPropagation()">
+            <div>
+                <img src="" alt="" id="modalImg" style="width: 100%; border-radius: 10px; height: 360px; object-fit: cover;">
+            </div>
+            <div>
+                <h2 id="modalTitle">Product</h2>
+                <div style="font-weight: 700; font-size: 18px; margin-top: 6px;">₱<span id="modalPrice">0.00</span></div>
+                <p id="modalDesc" style="color: #555; margin-top: 8px;">Description</p>
+
+                <div class="qty">
+                    <label style="font-size: 13px; color: #666;">Quantity</label>
+                    <button onclick="changeQty(-1)">-</button>
+                    <input id="modalQty" value="1" style="width: 44px; text-align: center; padding: 6px; border-radius: 8px; border: 1px solid #eee;">
+                    <button onclick="changeQty(1)">+</button>
+                </div>
+
+                <div style="margin-top: 14px; display: flex; gap: 8px;">
+                    <button class="btn" id="modalAdd">Add to cart</button>
+                    <button class="btn ghost" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+     </div>
+
+    <!-- JAVASCRIPT -->
+     <script src="main.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
