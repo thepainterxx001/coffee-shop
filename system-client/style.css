@@ -1,3 +1,5 @@
+@import url("./src/styles/toast.css");
+
 :root{
     --accent: rgb(112, 66, 37);
     --muted: #f4efec;
@@ -24,6 +26,16 @@ header{
     align-items: center;
     gap: 16px;
     padding: 18px 0;
+    transition: padding 0.3s ease, background 0.3s ease, backdrop-filter 0.3s ease;
+}
+header.fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px 40px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(15px);
 }
 .logo{
     font-weight: 800;

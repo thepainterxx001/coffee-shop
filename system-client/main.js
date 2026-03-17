@@ -1,3 +1,6 @@
+import toast from "./src/utils/toast.js";
+import scrollY from "./src/utils/scrollY.js";
+
 const PRODUCTS = [
     { id: 1, name: 'Barako Brew 250g', price: 199.00, img: 'images/barako-brew.jpg', description: 'Rich barako roast with deep aroma.' }, 
     { id: 2, name: 'Kape-Ling Ka Ceramic Mug', price: 299.00, img: 'images/ceramic-mug.jpg', description: 'Thick ceramic mug—perfect for barako.' },
@@ -33,7 +36,7 @@ function renderGrid(list) {
             <div class="title">${p.name}</div>
             <div class="meta"><div class="price">₱ ${p.price.toFixed(2)}</div><div style="color:#888">In stock</div></div>
             <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn" onclick="openModal(${p.id})">View</button>
+            <button class="btn open-modal" onclick="openModal(${p.id})">View</button>
             <button class="btn ghost" onclick="addToCart(${p.id})">Add</button>
             </div>
         `;
@@ -106,6 +109,7 @@ function openModal(id){
   document.getElementById('modalAdd').onclick = ()=>{ addToCart(id, Number(document.getElementById('modalQty').value)); closeModal(); };
   document.getElementById('modal').style.display = 'flex';
 }
+
 function closeModal(e){ if(e===undefined || e.target) document.getElementById('modal').style.display='none'; }
 function changeQty(delta){
   const qEl = document.getElementById('modalQty');
@@ -114,9 +118,11 @@ function changeQty(delta){
 
 /* Cart operations */
 function addToCart(id, qty=1){
+  toast("added");
   CART[id] = (CART[id]||0) + qty;
   renderCart(); flashCart();
 }
+
 function renderCart(){
   const list = document.getElementById('cartList');
   const keys = Object.keys(CART);
@@ -167,6 +173,15 @@ function flashCart(){
   el.style.transform = 'scale(1.2)'; setTimeout(()=>el.style.transform='scale(1)',160);
 }
 
+// make the functions globally for HTML inline event handlers since we used module type of javascript
+window.openModal = openModal;
+window.addToCart = addToCart;
+window.closeModal = closeModal;
+window.changeItemQty = changeItemQty;
+window.removeItem = removeItem;
+window.clearCart = clearCart;
+window.checkout = checkout;
+
 // Initial render
 renderFeatured();
 renderGrid(PRODUCTS);
@@ -178,6 +193,9 @@ document.getElementById('shopNow').addEventListener('click', ()=> {
         top: 600, behavior: 'smooth'
     });
 });
+
+// scroll detector to change the style of header/navbar
+scrollY();
 
 
 
