@@ -1,39 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAPE-LING KA</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
         <!-- HEADER -->
         <header class="header">
-            <div class="logo">KAPE-LING KA</div>
+            <div class="logo" id="homeLogo" style="cursor: pointer;">KAPE-LING KA</div>
             <div class="search"><input type="text" id="search" placeholder="Search products, e.g. 'coffee'"></div>
             <div class="nav-actions">
-                <button class="icon-btn" id="catalogBtn">Categories</button>
-                <button class="icon-btn" id="accountBtn">Account</button>
+
+                <button class="icon-btn" id="homeBtn">Home</button>
+
+                <div style="position: relative; display: inline-block;">
+                    <button class="icon-btn" id="catalogBtn">Categories ▼</button>
+                    <div id="categoryDropdown" class="dropdown-content"
+                        style="display: none; position: absolute; top: 120%; right: 0; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.12); border-radius: 12px; min-width: 160px; z-index: 100; flex-direction: column; overflow: hidden; border: 1px solid #eee;">
+                    </div>
+                </div>
                 <button class="icon-btn" id="cartBtn">Cart <span id="count" class="cart-count">0</span></button>
+                <button class="icon-btn" id="loginBtn">Login</button>
             </div>
         </header>
 
         <!-- HERO -->
-         <section class="hero" id="heroSection">
+        <section class="hero" id="heroSection">
             <div class="hero-card">
                 <h1>Kape-Ling Ka—Sa bawat gabi at umaga, kasama ka.</h1>
-                <p>Kape-Ling Ka celebrates the Filipino way of sharing coffee—with laughter, with stories, with the people who matter most. Because coffee isn't just a drink… it's a moment shared. <br><br>Browse our bestsellers and discover flavors made for moments together.</p>
+                <p>Kape-Ling Ka celebrates the Filipino way of sharing coffee—with laughter, with stories, with the
+                    people who matter most. Because coffee isn't just a drink… it's a moment shared. <br><br>Browse our
+                    bestsellers and discover flavors made for moments together.</p>
                 <div style="margin-top: 16px; display: flex; gap: 10px;">
                     <button class="btn" id="shopNow">Shop all</button>
                     <button class="btn ghost" id="learn">About</button>
                 </div>
                 <div style="margin-top: 18px; display: flex; gap: 12px;">
-                    <div style="flex: 1; background: #f4efec; padding: 10px; border-radius: 10px; box-shadow: 0 8px 20px rgb(0, 0, 0, 0.1);">
+                    <div
+                        style="flex: 1; background: #f4efec; padding: 10px; border-radius: 10px; box-shadow: 0 8px 20px rgb(0, 0, 0, 0.1);">
                         <small style="color: #666;">Free shipping over</small>
                         <div style="font-weight: 700;">₱1, 000</div>
                     </div>
-                    <div style="flex: 1; background: #f4efec; padding: 10px; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);">
+                    <div
+                        style="flex: 1; background: #f4efec; padding: 10px; border-radius: 10px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);">
                         <small style="color: #666;">Return policy</small>
                         <div style="font-weight: 700;">7 days</div>
                     </div>
@@ -43,27 +57,28 @@
             <div class="hero-image">
                 <img src="images/hero_shop_image.png" alt="hero">
             </div>
-         </section>
+        </section>
 
         <!-- FEATURED -->
-         <h3 id="featuredTitle">Featured</h3>
-         <div class="featured" id="featuredStrip"></div>
+        <h3 id="featuredTitle">Featured</h3>
+        <div class="featured" id="featuredStrip"></div>
 
         <!-- PRODUCTS -->
-         <h3 id="productsTitle">Shop Products</h3>
-         <div class="grid" id="productsGrid"></div>
+        <h3 id="productsTitle">Shop Products</h3>
+        <div class="grid" id="productsGrid"></div>
 
-       
-         <footer>
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; color: #666; font-size: 12px;">
+
+        <footer>
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; color: #666; font-size: 12px;">
                 <div>© Kape-Ling Ka. All rights reserved.</div>
                 <!-- <div style="color: #666;">EST 2025. All rights reserved.</div> -->
             </div>
-         </footer>
+        </footer>
     </div>
 
     <!-- CART PANEL (HIDDEN by DEFAULT) -->
-     <div id="cartPanel" class="cart-panel" style="display: none;">
+    <div id="cartPanel" class="cart-panel" style="display: none;">
         <h4>Your Cart</h4>
         <div id="cartList"></div>
         <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
@@ -73,23 +88,26 @@
                 <button class="btn" onclick="checkout()">Checkout</button>
             </div>
         </div>
-     </div>
+    </div>
 
     <!-- PRODUCT MODAL -->
-     <div id="modal" class="modal" onclick="closeModal(event)">
+    <div id="modal" class="modal" onclick="closeModal(event)">
         <div class="panel" onclick="event.stopPropagation()">
             <div>
-                <img src="" alt="" id="modalImg" style="width: 100%; border-radius: 10px; height: 360px; object-fit: cover;">
+                <img src="" alt="" id="modalImg"
+                    style="width: 100%; border-radius: 10px; height: 360px; object-fit: cover;">
             </div>
             <div>
                 <h2 id="modalTitle">Product</h2>
-                <div style="font-weight: 700; font-size: 18px; margin-top: 6px;">₱<span id="modalPrice">0.00</span></div>
+                <div style="font-weight: 700; font-size: 18px; margin-top: 6px;">₱<span id="modalPrice">0.00</span>
+                </div>
                 <p id="modalDesc" style="color: #555; margin-top: 8px;">Description</p>
 
                 <div class="qty">
                     <label style="font-size: 13px; color: #666;">Quantity</label>
                     <button onclick="changeQty(-1)">-</button>
-                    <input id="modalQty" value="1" style="width: 44px; text-align: center; padding: 6px; border-radius: 8px; border: 1px solid #eee;">
+                    <input id="modalQty" value="1"
+                        style="width: 44px; text-align: center; padding: 6px; border-radius: 8px; border: 1px solid #eee;">
                     <button onclick="changeQty(1)">+</button>
                 </div>
 
@@ -99,9 +117,118 @@
                 </div>
             </div>
         </div>
-     </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div id="checkoutModal" class="modal" onclick="closeCheckout(event)" style="display: none;">
+        <div class="panel" onclick="event.stopPropagation()">
+            <h2>Checkout Details</h2>
+            <p style="color: #666; margin-bottom: 15px;">Complete your order for Kape-Ling Ka.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="text" id="chkName" placeholder="Full Name"
+                    style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                <input type="text" id="chkAddress" placeholder="Delivery Address"
+                    style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                <select id="chkPayment" style="padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+                    <option value="cod">Cash on Delivery (COD)</option>
+                    <option value="gcash">GCash</option>
+                    <option value="card">Credit/Debit Card</option>
+                </select>
+            </div>
+
+            <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <strong>Total to Pay: ₱<span id="chkTotal">0.00</span></strong>
+            </div>
+
+            <div style="margin-top: 15px; display: flex; gap: 8px;">
+                <button class="btn" onclick="confirmOrder()">Confirm Order</button>
+                <button class="btn ghost" onclick="closeCheckout()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VALIDATION MODAL -->
+    <div id="validationModal" class="modal" onclick="closeValidationModal(event)"
+        style="display: none; z-index: 1000; align-items: center; justify-content: center;">
+        <div class="panel" onclick="event.stopPropagation()"
+            style="text-align: center; width: 90%; max-width: 420px; padding: 30px; display: flex; flex-direction: column; align-items: center; box-sizing: border-box;">
+
+            <div id="validationIcon" style="font-size: 50px; margin-bottom: 15px;">⚠️</div>
+
+            <h2 id="validationTitle" style="margin-bottom: 10px; width: 100%;">Oops!</h2>
+
+            <p id="validationMessage"
+                style="color: #666; margin-bottom: 25px; line-height: 1.5; width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
+                Something went wrong.
+            </p>
+
+            <button class="btn" style="width: 100%; padding: 12px;" onclick="closeValidationModal()">Got it</button>
+
+        </div>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="authModal" class="modal" onclick="closeAuthModal(event)"
+        style="display: none; z-index: 1000; align-items: center; justify-content: center;">
+
+        <div class="panel" onclick="event.stopPropagation()"
+            style="width: 90%; max-width: 450px; min-width: 350px; padding: 40px 30px; border-radius: 12px; box-sizing: border-box; position: relative; background: #fff; display: block;">
+
+            <button onclick="closeAuthModal()"
+                style="position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 24px; cursor: pointer; color: #888; line-height: 1;">&times;</button>
+
+            <div id="loginView" style="width: 100%; display: block;">
+                <h2 style="margin-bottom: 5px;">Welcome Back!</h2>
+                <p style="color: #666; margin-bottom: 25px; font-size: 15px;">Log in to your Kape-Ling Ka account.</p>
+
+                <div style="margin-bottom: 20px;">
+                    <input type="email" id="loginEmail" placeholder="Email Address"
+                        style="width: 100%; box-sizing: border-box; padding: 14px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; display: block; font-size: 15px;">
+                    <input type="password" id="loginPassword" placeholder="Password"
+                        style="width: 100%; box-sizing: border-box; padding: 14px; border-radius: 8px; border: 1px solid #ccc; display: block; font-size: 15px;">
+                </div>
+
+                <button class="btn"
+                    style="width: 100%; box-sizing: border-box; margin-bottom: 20px; padding: 14px; display: block; font-size: 16px;"
+                    onclick="processLogin()">Log In</button>
+
+                <p style="text-align: center; font-size: 15px; margin: 0; color: #666;">
+                    Don't have an account?
+                    <a href="#" onclick="toggleAuthView('signup', event)"
+                        style="color: #2c1e16; font-weight: bold; text-decoration: underline;">Sign up</a>
+                </p>
+            </div>
+
+            <div id="signupView" style="display: none; width: 100%;">
+                <h2 style="margin-bottom: 5px;">Create Account</h2>
+                <p style="color: #666; margin-bottom: 25px; font-size: 15px;">Join us for exclusive coffee perks.</p>
+
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="signupName" placeholder="Full Name"
+                        style="width: 100%; box-sizing: border-box; padding: 14px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; display: block; font-size: 15px;">
+                    <input type="email" id="signupEmail" placeholder="Email Address"
+                        style="width: 100%; box-sizing: border-box; padding: 14px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc; display: block; font-size: 15px;">
+                    <input type="password" id="signupPassword" placeholder="Password"
+                        style="width: 100%; box-sizing: border-box; padding: 14px; border-radius: 8px; border: 1px solid #ccc; display: block; font-size: 15px;">
+                </div>
+
+                <button class="btn"
+                    style="width: 100%; box-sizing: border-box; margin-bottom: 20px; padding: 14px; display: block; font-size: 16px;"
+                    onclick="processSignup()">Sign Up</button>
+
+                <p style="text-align: center; font-size: 15px; margin: 0; color: #666;">
+                    Already have an account?
+                    <a href="#" onclick="toggleAuthView('login', event)"
+                        style="color: #2c1e16; font-weight: bold; text-decoration: underline;">Log in</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
 
     <!-- JAVASCRIPT -->
-     <script type="module" src="main.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
+
 </html>
