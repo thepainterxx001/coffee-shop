@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 import Product from "../models/product.js";
 import Order from "../models/order.js";
@@ -14,8 +15,9 @@ const PORT = process.env.PORT || 5001;
 
 // middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors({
-  origin: ["http://127.0.0.1:3000", "http://localhost:3000"],
+  origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://192.168.100.11:5500"],                                                       
   credentials: true
 }));
 
