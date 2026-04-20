@@ -6,17 +6,21 @@ import mongoose from "mongoose";
 import Product from "../models/product.js";
 import Order from "../models/order.js";
 
+// routes
+import authRoutes from "./routes/authRoutes.js";
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
 // middleware
 app.use(express.json());
 app.use(cors({
-  origin: ["http://127.0.0.1:3000", "http://localhost:3000"],
+  origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://192.168.100.11:5500"],
   credentials: true
 }));
 
 // --- ROUTES ---
+app.use("/api/admin", authRoutes);
 app.get('/api/products', async (req, res) => {
   try {
     const products = await Product.find();

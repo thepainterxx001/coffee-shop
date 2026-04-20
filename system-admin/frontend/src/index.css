@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-b1: #47342E;
+  --color-b2: #534139;
+  --color-g1: #C9BEBA;
+  --color-g2: #867772;
+  --color-g3: #A69993;
+  --color-wh1: #F9F5F2;
+}
+
 #root {
   height: 100vh;
   width: 100vw;
