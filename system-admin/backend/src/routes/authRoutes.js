@@ -1,5 +1,5 @@
 import express from "express";
-import { newAdmin, loginAdmin } from "../controller/authController.js";
+import { newAdmin, loginAdmin, logoutAdmin } from "../controller/authController.js";
 import authentication from "../middleware/authentication.js";
 import Admin from "../../models/admin.js";
 
@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.post("/new-admin", newAdmin);
 router.post("/login-admin", loginAdmin);
+router.post("/logout-admin", logoutAdmin);
 router.get("/access-admin", authentication("admin"), async (req, res) => {
   try {
     const admin = await Admin.findById(req.user.id);

@@ -6,8 +6,9 @@ let CART = {}; // id -> qty
 
 async function fetchProducts() {
   try {
-    const response = await fetch('http://localhost:5001/api/products');
-    PRODUCTS = await response.json();
+    const response = await fetch('http://localhost:5001/api/products/all-products');
+    const data = await response.json();
+    PRODUCTS = data.products;
 
     renderFeatured();
     renderGrid(PRODUCTS);

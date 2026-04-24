@@ -27,7 +27,7 @@ export const newAdmin = async (req, res) => {
 export const loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     if(!username || !password) 
       return res.status(400).json({ message: "All fields are required." });
 
@@ -45,7 +45,7 @@ export const loginAdmin = async (req, res) => {
       {expiresIn: "7D"}
     );
 
-    res.cookies("admin_token", token, {
+    res.cookie("admin_token", token, {
       httpOnly: true,
       secure: false, //false muna kase development palang naman
       sameSite: "lax",
@@ -58,6 +58,20 @@ export const loginAdmin = async (req, res) => {
     });
   } catch (err) {
     console.log("Error in loginAdmin controller", err);
+    res.status(500).json({ message: "Internal server error." });
+  }
+}
+
+export const logoutAdmin = async (req, res) => {
+  try {
+    res.clearCookie("admin_token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: true
+    });
+    res.status(200).json({ message: "Admin logged out." });
+  } catch (err) {
+    console.log("Error in logoutAdmin controller", err);
     res.status(500).json({ message: "Internal server error." });
   }
 }

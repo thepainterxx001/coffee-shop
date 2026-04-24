@@ -11,8 +11,13 @@ import {
   Settings, 
   LogOut 
 } from 'lucide-react';
+import { axiosAdmin } from "../../lib/axios.js";
+import toast from "react-hot-toast";
+import { useContext } from "react";
+import authContext from "../../context/auth/authContext";
 
 const Sidebar = () => {
+  const { checkAuth } = useContext(authContext);
   const navigate = useNavigate()
   const location = useLocation();
   const [ activePath, setActivePath ] = useState(location.pathname);
@@ -66,7 +71,12 @@ const Sidebar = () => {
 
         {/* logout section */}
         <div className="p-8">
-          <button className="flex items-center gap-4 text-gray-300 hover:text-white transition-colors w-full cursor-pointer">
+          <button className="flex items-center gap-4 text-gray-300 hover:text-white transition-colors w-full cursor-pointer"
+          onClick={ async () => {
+            const res = await axiosAdmin.post("/logout-admin");
+            await checkAuth({ showLoading: false });
+            toast.success(res.data.message);
+          }}>
             <LogOut size={20} />
             <span className="text-sm font-medium">Log Out</span>
           </button>

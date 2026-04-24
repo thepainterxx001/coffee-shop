@@ -9,6 +9,7 @@ import Order from "../models/order.js";
 
 // routes
 import authRoutes from "./routes/authRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -17,21 +18,13 @@ const PORT = process.env.PORT || 5001;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://192.168.100.11:5500"],                                                       
+  origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://localhost:5173", "http://192.168.100.11:5500"],                                                       
   credentials: true
 }));
 
 // --- ROUTES ---
 app.use("/api/admin", authRoutes);
-app.get('/api/products', async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
+app.use("/api/products", productRoutes);
 
 // New checkout order
 app.post('/api/orders', async (req, res) => {
