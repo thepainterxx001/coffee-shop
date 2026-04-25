@@ -41,7 +41,7 @@ const Sidebar = () => {
     <div className="flex h-screen w-full bg-wh1 overflow-hidden">
       
       {/* sidebar container */}
-      <aside className="w-64 bg-b2 rounded-r-[40px] flex flex-col text-white overflow-hidden select-none">
+      <aside className="min-w-62 bg-b2 rounded-r-[40px] flex flex-col text-white overflow-hidden select-none">
         
         {/* profile section */}
         <div className="flex flex-col items-center py-8 bg-b1">

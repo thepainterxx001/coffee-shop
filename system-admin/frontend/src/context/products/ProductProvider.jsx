@@ -25,6 +25,23 @@ const ProductProvider = ({children }) => {
     }
   }
 
+  const addProduct = async (file, form) => {
+    try {
+      const formData = new FormData();
+      formData.append("product", file);
+      formData.append("name", form.name);
+      formData.append("price", form.price);
+      formData.append("description", form.description);
+      formData.append("category", form.category);
+
+      const res = await axiosProduct.post("/new-product", formData);
+      await getAllProducts();
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message);
+    }
+  }
+
   const updateProduct = async (file, form) => {
 
     try {
@@ -35,11 +52,22 @@ const ProductProvider = ({children }) => {
       formData.append("description", form.description);
       formData.append("category", form.category);
 
-      await axiosProduct.put(`/edit-product/${form.id}`, formData);
+      const res = await axiosProduct.put(`/edit-product/${form.id}`, formData);
       await getAllProducts();
+      toast.success(res.data.message);
     } catch (err) {
-      console.error(err.response?.data?.message);
+      toast.error(err.response?.data?.message);
     } 
+  }
+
+  const deleteProduct = async (id) => {
+    try {
+      const res = await axiosProduct.delete(`/delete-product/${id}`);
+      await getAllProducts();
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message);
+    }
   }
 
   useEffect(() => {
@@ -48,7 +76,7 @@ const ProductProvider = ({children }) => {
   }, [authenticated])
 
   return (
-    <productContext.Provider value={{ allProducts, updateProduct }}>
+    <productContext.Provider value={{ allProducts, addProduct, updateProduct, deleteProduct }}>
       {children}
     </productContext.Provider>
   )

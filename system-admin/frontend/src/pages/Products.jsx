@@ -1,5 +1,5 @@
 import { useContext, useRef, useState } from "react"
-import { Pencil, Trash2, CirclePlus,
+import { Pencil, Trash2, CirclePlus, AlertTriangle,
   X, Upload, PackagePlus, ChevronDown,
   Save, RefreshCcw, Image as ImageIcon
  } from 'lucide-react';
@@ -9,13 +9,20 @@ import toast from "react-hot-toast";
 import { useEffect } from "react";
 
 const Products = () => {
+  const { deleteProduct } = useContext(productContext);
   const [ createProduct, setCreateProduct ] = useState(false); 
   const [ editProduct, setEditProduct ] = useState(null); 
+  const [ delConfirm, setDelConfirm ] = useState(null);
 
   return (
-    <div>
+    <div className="h-full w-full">
       <Header />
-      <AllProducts setCreateProduct={setCreateProduct} setEditProduct={setEditProduct} />
+      <AllProducts setCreateProduct={setCreateProduct} setEditProduct={setEditProduct} setDelConfirm={setDelConfirm} />
+      {delConfirm &&
+        <DeleteProductModal productName={delConfirm.name} onDelete={ async () => {
+          await deleteProduct(delConfirm.id);
+          setDelConfirm(null);
+        }} onCancel={() => setDelConfirm(null)} />}
       {editProduct && 
         <EditProduct editProduct={editProduct} onClose={() => setEditProduct(null)} />}
       {createProduct && 
@@ -25,13 +32,13 @@ const Products = () => {
   )
 }
 
-const AllProducts = ({ setCreateProduct, setEditProduct }) => {
+const AllProducts = ({ setCreateProduct, setEditProduct, setDelConfirm }) => {
   const { allProducts } = useContext(productContext);
 
   return (
-    <div className="flex flex-col gap-2">
-      <h2>All Products</h2>
-      <div className="flex flex-wrap gap-4 overflow-x-auto pb-4 scrollbar-hide">
+    <div className="flex flex-col justify-center p-2 rounded-lg gap-4 bg-g1">
+      <h2 className="bg-wh1 w-max py-1 px-2 rounded-md">All Products</h2>
+      <div className="flex gap-4 pb-4 overflow-y-auto overflow-x-auto flex-wrap lg:flex-nowrap lg:flex-row scrollbar-hide">
         <div className="relative min-w-55 h-50 rounded-2xl overflow-hidden group border-2 border-dashed border-gray-200 hover:border-b1 hover:bg-b2/25 transition-all duration-300 ease-in-out shadow-sm hover:shadow-md">
           <button className="flex flex-col items-center justify-center h-full w-full cursor-pointer text-gray-400 group-hover:text-b1 transition-colors group"
           onClick={() => setCreateProduct(true)}>
@@ -41,17 +48,17 @@ const AllProducts = ({ setCreateProduct, setEditProduct }) => {
         </div>
         {allProducts?.map((product) => (
           <div 
-            key={product.id} 
+            key={product._id} 
             className="relative min-w-55 h-50 rounded-2xl overflow-hidden group shadow-lg"
           >
-            {/* Background Image */}
+            {/* productg image */}
             <img 
               src={product.img} 
               alt={product.name}
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             />
             
-            {/* Dark Overlay for text legibility */}
+            {/* Dark Overlay */}
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
 
             {/* Top Action Icons */}
@@ -67,7 +74,13 @@ const AllProducts = ({ setCreateProduct, setEditProduct }) => {
               })}>
                 <Pencil className="w-5 h-5" />
               </button>
-              <button className="hover:text-red-400 cursor-pointer"><Trash2 className="w-5 h-5" /></button>
+              <button className="hover:text-red-400 cursor-pointer"
+              onClick={() => setDelConfirm({
+                id: product._id,
+                name: product.name
+              })}>
+                <Trash2 className="w-5 h-5" />
+              </button>
             </div>
 
             {/* Bottom Info */}
@@ -75,8 +88,8 @@ const AllProducts = ({ setCreateProduct, setEditProduct }) => {
               <p className="font-medium truncate pr-2 text-sm drop-shadow-md">
                 {product.name}
               </p>
-              <span className="font-bold text-lg drop-shadow-md">
-                {product.price}$
+              <span className="font-semibold text-lg drop-shadow-md">
+                ₱{product.price}
               </span>
             </div>
           </div>
@@ -86,8 +99,85 @@ const AllProducts = ({ setCreateProduct, setEditProduct }) => {
   )
 }
 
+const DeleteProductModal = ({ productName, onDelete, onCancel }) => {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px]">
+      <div className="w-full max-w-md overflow-hidden bg-white rounded-xl shadow-2xl animate-in fade-in zoom-in duration-200">
+        
+        <div className="flex items-center justify-between px-6 py-4 bg-red-50 border-b border-red-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-100 rounded-full text-red-600">
+              <AlertTriangle size={20} />
+            </div>
+            <h3 className="text-lg font-bold text-red-900">Confirm Deletion</h3>
+          </div>
+          <button 
+            onClick={onCancel}
+            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <p className="text-gray-600 leading-relaxed">
+            Are you sure you want to delete <span className="font-semibold text-gray-900">"{productName}"</span>? 
+            This action is permanent and will remove all associated data from the system.
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 px-6 py-4 bg-gray-50">
+          <button
+            onClick={onCancel}
+            className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:ring-gray-100 transition-all cursor-pointer"
+          >
+            No, Keep Product
+          </button>
+          <button
+            onClick={onDelete}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-200 transition-all cursor-pointer"
+          >
+            <Trash2 size={16} />
+            Yes, Delete Permanently
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
 const CreateProduct = ({ createProduct, onClose }) => {
-  if (!createProduct) return null;
+  const { addProduct } = useContext(productContext);
+
+  const imgRef = useRef(null);
+  const [ prevImg, setPrevImg ] = useState(null);
+  const [ name, setName ] = useState(null);
+  const [ price, setPrice ] = useState(null);
+  const [ category, setCategory ] = useState(null);
+  const [ description, setDescription ] = useState(null);
+  const [ loading, setLoading ] = useState(false);
+
+  const previewImage = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPrevImg(URL.createObjectURL(file));
+    console.log(e.target.files);
+  }
+
+  const uploadProductDetails = async () => {
+    setLoading(true);
+    const toastID = toast.loading("Adding product...");
+
+    const form = {
+      name, price, category, description
+    };
+    await addProduct(imgRef?.current?.files[0], form)
+    onClose();
+    toast.dismiss(toastID);
+    setLoading(false);
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-b1/40 backdrop-blur-[2px] p-4">
@@ -99,7 +189,8 @@ const CreateProduct = ({ createProduct, onClose }) => {
           <h2 className="text-2xl font-bold text-b1">Create Product</h2>
           <button 
             onClick={onClose} 
-            className="p-2 hover:bg-g1/20 rounded-full transition-colors text-b2 cursor-pointer"
+            className={`p-2 hover:bg-g1/20 rounded-full transition-colors text-b2 ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
+            disabled={loading}
           >
             <X size={24} />
           </button>
@@ -108,7 +199,7 @@ const CreateProduct = ({ createProduct, onClose }) => {
         {/* Form Body */}
         <form className="p-8 space-y-5">
           
-          {/* Name and Price Row */}
+          {/* Name and Price */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-g2 ml-1">Product Name</label>
@@ -116,6 +207,7 @@ const CreateProduct = ({ createProduct, onClose }) => {
                 type="text" 
                 placeholder="Name" 
                 className="w-full bg-white px-4 py-3 rounded-xl border border-g1 focus:border-b2 focus:ring-1 focus:ring-b2 outline-none transition-all text-b1 placeholder:text-g1"
+               onChange={(e) => setName(e.target.value)}
               />
             </div>
             <div className="space-y-1.5">
@@ -124,6 +216,7 @@ const CreateProduct = ({ createProduct, onClose }) => {
                 type="number" 
                 placeholder="0.00" 
                 className="w-full bg-white px-4 py-3 rounded-xl border border-g1 focus:border-b2 focus:ring-1 focus:ring-b2 outline-none transition-all text-b1 placeholder:text-g1"
+                onChange={(e) => setPrice(e.target.value)}
               />
             </div>
           </div>
@@ -135,6 +228,7 @@ const CreateProduct = ({ createProduct, onClose }) => {
               rows="3"
               placeholder="Describe the product details..." 
               className="w-full bg-white px-4 py-3 rounded-xl border border-g1 focus:border-b2 focus:ring-1 focus:ring-b2 outline-none transition-all text-b1 placeholder:text-g1 resize-none"
+              onChange={(e) => setDescription(e.target.value)}
             ></textarea>
           </div>
 
@@ -142,13 +236,14 @@ const CreateProduct = ({ createProduct, onClose }) => {
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase tracking-wider text-g2 ml-1">Category</label>
             <div className="relative">
-              <select className="w-full bg-white px-4 py-3 rounded-xl border border-g1 focus:border-b2 focus:ring-1 focus:ring-b2 outline-none appearance-none text-b1 cursor-pointer">
+              <select className="w-full bg-white px-4 py-3 rounded-xl border border-g1 focus:border-b2 focus:ring-1 focus:ring-b2 outline-none appearance-none text-b1 cursor-pointer"
+              onChange={(e) => setCategory(e.target.value)}>
                 <option value="" className="text-g1">Select Category</option>
-                <option value="1">Coffee</option>
-                <option value="2">Merch</option>
-                <option value="3">Food</option>
-                <option value="4">Gifts</option>
-                <option value="5">Equipment</option>
+                <option value="Coffee">Coffee</option>
+                <option value="Merch">Merch</option>
+                <option value="Food">Food</option>
+                <option value="Gifts">Gifts</option>
+                <option value="Equipment">Equipment</option>
               </select>
               <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-g2 pointer-events-none" />
             </div>
@@ -158,18 +253,39 @@ const CreateProduct = ({ createProduct, onClose }) => {
           <div className="space-y-1.5">
             <label className="text-xs font-bold uppercase tracking-wider text-g2 ml-1">Product Image</label>
             <div className="group relative border-2 border-dashed border-g1 rounded-2xl p-6 flex flex-col items-center justify-center hover:border-b2 hover:bg-g1/10 transition-all cursor-pointer bg-white/50">
-              <div className="p-3 bg-wh1 rounded-full shadow-sm mb-2 group-hover:scale-110 transition-transform">
-                <Upload className="text-b2" size={24} />
-              </div>
-              <p className="text-sm text-g2 group-hover:text-b1 font-medium transition-colors">Click to upload photo</p>
-              <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+              {prevImg
+                ? (
+                  <div className="relative w-max h-max rounded-lg">
+                    <div className="absolute top-0 left-0 flex flex-col items-center justify-center h-full w-full group-hover:bg-black/50 transition-colors rounded-lg">
+                      <div className="p-3 bg-wh1 w-max rounded-full opacity-0 group-hover:opacity-100 shadow-sm mb-2 transition-all">
+                        <Upload className="text-b2" size={24} />
+                      </div>
+                      <p className="text-sm opacity-0 group-hover:opacity-100 text-wh1 font-medium transition-all">Replace product photo</p>
+                    </div>
+                    <img src={prevImg}
+                    className="w-75 h-55 rounded-lg object-cover object-center" />
+                  </div>
+                )
+                : (
+                  <>
+                    <div className="p-3 bg-wh1 rounded-full shadow-sm mb-2 group-hover:scale-110 transition-transform">
+                      <Upload className="text-b2" size={24} />
+                    </div>
+                    <p className="text-sm text-g2 group-hover:text-b1 font-medium transition-colors">Click to upload photo</p>
+                  </>
+                )
+              }
+              <input type="file" className="absolute inset-0 opacity-0 cursor-pointer z-50"
+              ref={imgRef} onChange={(e) => previewImage(e)} />
             </div>
           </div>
 
           {/* Action Button */}
           <button 
             type="submit" 
-            className="w-full bg-b1 hover:bg-b2 text-wh1 font-bold py-4 rounded-xl shadow-lg shadow-b1/20 flex items-center justify-center gap-2 mt-4 transform active:scale-[0.98] transition-all cursor-pointer"
+            className={`w-full bg-b1 hover:bg-b2 text-wh1 font-bold py-4 rounded-xl shadow-lg shadow-b1/20 flex items-center justify-center gap-2 mt-4 transform active:scale-[0.98] transition-all ${loading ? "cursor-wait" : "cursor-pointer"}`}
+            disabled={loading}
+            onClick={() => uploadProductDetails()}
           >
             <PackagePlus size={20} />
             Add Product
@@ -230,7 +346,8 @@ const EditProduct = ({ editProduct, onClose }) => {
           </div>
           <button 
             onClick={onClose} 
-            className="p-2 hover:bg-g1/20 rounded-full transition-colors text-b2 cursor-pointer"
+            className={`p-2 hover:bg-g1/20 rounded-full transition-colors text-b2 ${loading ? "cursor-not-allowed" : "cursor-pointer"}`}
+            disabled={loading}
           >
             <X size={24} />
           </button>
