@@ -2,7 +2,35 @@ import toast from "./src/utils/toast.js";
 import scrollY from "./src/utils/scrollY.js";
 
 let PRODUCTS = [];
-let CART = {}; // id -> qty
+let CART = JSON.parse(localStorage.getItem('savedCart')) || {};
+let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+
+// --- AUTH UI UPDATER ---
+function updateAuthUI() {
+  const loginBtn = document.getElementById('loginBtn');
+
+  if (currentUser) {
+    loginBtn.innerHTML = `👤 ${currentUser.name.split(' ')[0]}`;
+
+    // Logout
+    loginBtn.onclick = () => {
+      if (confirm("Do you want to log out?")) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        currentUser = null;
+        updateAuthUI();
+      }
+    };
+  } else {
+    loginBtn.textContent = 'Login';
+    loginBtn.onclick = () => {
+      toggleAuthView('login');
+      document.getElementById('authModal').style.display = 'flex';
+    };
+  }
+}
+
+updateAuthUI();
 
 async function fetchProducts() {
   try {
@@ -12,6 +40,7 @@ async function fetchProducts() {
 
     renderFeatured();
     renderGrid(PRODUCTS);
+    renderCart();
   } catch (error) {
     console.error("Failed to load products:", error);
     document.getElementById('productsGrid').innerHTML = '<p style="color:red;">Error loading products. Is the server running?</p>';
@@ -37,6 +66,8 @@ function renderGrid(list) {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = '';
   list.forEach(p => {
+    const safeId = p._id || p.id;
+
     const c = document.createElement('div');
     c.className = 'card';
     c.innerHTML = `
@@ -44,8 +75,8 @@ function renderGrid(list) {
             <div class="title">${p.name}</div>
             <div class="meta"><div class="price">₱ ${p.price.toFixed(2)}</div><div style="color:#888">In stock</div></div>
             <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn open-modal" onclick="openModal(${p.id})">View</button>
-            <button class="btn ghost" onclick="addToCart(${p.id})">Add</button>
+            <button class="btn open-modal" onclick="openModal('${safeId}')">View</button>
+            <button class="btn ghost" onclick="addToCart('${safeId}')">Add</button>
             </div>
         `;
     grid.appendChild(c);
@@ -158,7 +189,7 @@ function filterByCategory(choice) {
 
 /* Modal logic */
 function openModal(id) {
-  const p = PRODUCTS.find(x => x.id === id);
+  const p = PRODUCTS.find(x => x._id == id || x.id == id);
   document.getElementById('modalImg').src = p.img;
   document.getElementById('modalTitle').textContent = p.name;
   document.getElementById('modalPrice').textContent = p.price.toFixed(2);
@@ -183,10 +214,16 @@ function closeValidationModal(e) {
 }
 
 /* Cart operations */
+function saveCart() {
+  localStorage.setItem('savedCart', JSON.stringify(CART));
+}
+
 function addToCart(id, qty = 1) {
   toast("added");
   CART[id] = (CART[id] || 0) + qty;
-  renderCart(); flashCart();
+  renderCart(); 
+  flashCart();
+  saveCart();
 }
 
 function renderCart() {
@@ -196,10 +233,11 @@ function renderCart() {
   let total = 0;
   if (keys.length === 0) { list.innerHTML = '<div style="color:#666;padding:6px">Cart is empty</div>'; document.getElementById('count').textContent = 0; document.getElementById('cartTotal').textContent = '0.00'; return; }
   keys.forEach(k => {
-    const p = PRODUCTS.find(x => x.id == k);
+    const p = PRODUCTS.find(x => x._id == k || x.id == k);
     const qty = CART[k];
     const subtotal = p.price * qty;
     total += subtotal;
+
     const row = document.createElement('div'); row.className = 'cart-item';
     row.innerHTML = `<div>
       <div style="font-weight:700">${p.name}</div>
@@ -208,9 +246,9 @@ function renderCart() {
     <div style="text-align:right">
       <div style="font-weight:700">₱ ${subtotal.toFixed(2)}</div>
       <div style="margin-top:6px;display:flex;gap:6px;justify-content:flex-end">
-        <button class="icon-btn" onclick="changeItemQty(${p.id},-1)">−</button>
-        <button class="icon-btn" onclick="changeItemQty(${p.id},1)">+</button>
-        <button class="icon-btn" onclick="removeItem(${p.id})">🗑</button>
+        <button class="icon-btn" onclick="changeItemQty('${k}',-1)">−</button>
+        <button class="icon-btn" onclick="changeItemQty('${k}',1)">+</button>
+        <button class="icon-btn" onclick="removeItem('${k}')">🗑</button>
       </div>
     </div>`;
     list.appendChild(row);
@@ -224,9 +262,10 @@ function changeItemQty(id, delta) {
   CART[id] = Math.max(0, cur + delta);
   if (CART[id] === 0) delete CART[id];
   renderCart();
+  saveCart();
 }
-function removeItem(id) { delete CART[id]; renderCart(); }
-function clearCart() { CART = {}; renderCart(); }
+function removeItem(id) { delete CART[id]; renderCart(); saveCart(); }
+function clearCart() { CART = {}; renderCart(); saveCart(); }
 
 /* small UI helpers */
 document.getElementById('cartBtn').addEventListener('click', () => {
@@ -240,6 +279,7 @@ function flashCart() {
 
 // --- CHECKOUT UI LOGIC ---
 function checkout() {
+  // check if cart is empty
   if (Object.keys(CART).length === 0) {
     document.getElementById('validationIcon').textContent = "🛒";
     document.getElementById('validationTitle').textContent = "Cart is Empty";
@@ -247,7 +287,18 @@ function checkout() {
     document.getElementById('validationModal').style.display = 'flex';
     return;
   }
+
+  // check if user is login
+  if (!currentUser) {
+    document.getElementById('cartPanel').style.display = 'none'; // Hide cart
+    toggleAuthView('login');
+    document.getElementById('authModal').style.display = 'flex'; // Pop the login modal
+    return;
+  }
+
+  // checkout
   document.getElementById('chkTotal').textContent = document.getElementById('cartTotal').textContent;
+  document.getElementById('chkName').value = currentUser.name;
   document.getElementById('cartPanel').style.display = 'none';
   document.getElementById('checkoutModal').style.display = 'flex';
 }
@@ -280,12 +331,12 @@ async function confirmOrder() {
     let calculatedTotal = 0;
 
     for (const [id, qty] of Object.entries(CART)) {
-      const product = PRODUCTS.find(p => p.id == id);
+      const product = PRODUCTS.find(p => p._id == id || p.id == id);
       const subtotal = product.price * qty;
       calculatedTotal += subtotal;
 
       orderItems.push({
-        productId: Number(id),
+        productId: product.id || product._id,
         name: product.name,
         quantity: qty,
         subtotal: subtotal
@@ -344,10 +395,10 @@ async function confirmOrder() {
 // --- AUTHENTICATION MODAL ---
 
 // Open Modal (Defaults to Login view)
-document.getElementById('loginBtn').addEventListener('click', () => {
-  toggleAuthView('login');
-  document.getElementById('authModal').style.display = 'flex';
-});
+// document.getElementById('loginBtn').addEventListener('click', () => {
+//   toggleAuthView('login');
+//   document.getElementById('authModal').style.display = 'flex';
+// });
 
 // Close the Modal
 function closeAuthModal(e) {
@@ -372,31 +423,109 @@ function toggleAuthView(view, event) {
   }
 }
 
-function processLogin() {
+async function processLogin() {
   const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
 
   if (!email || !password) {
-    alert("Please enter both email and password.");
+    document.getElementById('validationIcon').textContent = "⚠️";
+    document.getElementById('validationTitle').textContent = "Missing Fields";
+    document.getElementById('validationMessage').textContent = "Please enter both email and password.";
+    document.getElementById('validationModal').style.display = 'flex';
     return;
   }
 
-  console.log("Attempting to login with:", email);
-  alert("Still working on backend...");
+  const btn = document.querySelector('#loginView .btn');
+  btn.textContent = "Logging in...";
+
+  try {
+    const res = await fetch('http://localhost:5001/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      // save data
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      currentUser = data.user;
+
+      // Update the UI
+      updateAuthUI();
+      closeAuthModal();
+
+      // open checkout modal
+      if (Object.keys(CART).length > 0) {
+        checkout();
+      }
+    } else {
+      document.getElementById('validationIcon').textContent = "❌";
+      document.getElementById('validationTitle').textContent = "Login Failed";
+      document.getElementById('validationMessage').textContent = data.message || "Invalid credentials. Please try again.";
+      document.getElementById('validationModal').style.display = 'flex';
+    }
+  } catch (err) {
+    console.error(err);
+    document.getElementById('validationIcon').textContent = "❌";
+    document.getElementById('validationTitle').textContent = "Connection Error";
+    document.getElementById('validationMessage').textContent = "Could not connect to the server.";
+    document.getElementById('validationModal').style.display = 'flex';
+  } finally {
+    btn.textContent = "Log In"; // Reset button text
+  }
 }
 
-function processSignup() {
+async function processSignup() {
   const name = document.getElementById('signupName').value;
   const email = document.getElementById('signupEmail').value;
   const password = document.getElementById('signupPassword').value;
 
   if (!name || !email || !password) {
-    alert("Please fill out all fields.");
+    document.getElementById('validationIcon').textContent = "⚠️";
+    document.getElementById('validationTitle').textContent = "Missing Fields";
+    document.getElementById('validationMessage').textContent = "Please fill out all fields.";
+    document.getElementById('validationModal').style.display = 'flex';
     return;
   }
 
-  console.log("Attempting to sign up:", name, email);
-  alert("Still working on backend...");
+  const btn = document.querySelector('#signupView .btn');
+  btn.textContent = "Creating Account...";
+
+  try {
+    const res = await fetch('http://localhost:5001/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      document.getElementById('validationIcon').textContent = "🎉";
+      document.getElementById('validationTitle').textContent = "Account Created!";
+      document.getElementById('validationMessage').textContent = "Your account was created successfully. Please log in.";
+      document.getElementById('validationModal').style.display = 'flex';
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = '';
+      toggleAuthView('login');
+    } else {
+      document.getElementById('validationIcon').textContent = "❌";
+      document.getElementById('validationTitle').textContent = "Signup Failed";
+      document.getElementById('validationMessage').textContent = data.message || "Signup failed. Email might already exist.";
+      document.getElementById('validationModal').style.display = 'flex';
+    }
+  } catch (err) {
+    console.error(err);
+    document.getElementById('validationIcon').textContent = "❌";
+    document.getElementById('validationTitle').textContent = "Connection Error";
+    document.getElementById('validationMessage').textContent = "Could not connect to the server.";
+    document.getElementById('validationModal').style.display = 'flex';
+  } finally {
+    btn.textContent = "Sign Up";
+  }
 }
 
 // global functions for HTML inline event handlers
@@ -416,10 +545,6 @@ window.closeAuthModal = closeAuthModal;
 window.toggleAuthView = toggleAuthView;
 window.processLogin = processLogin;
 window.processSignup = processSignup;
-
-
-// Initial render
-renderCart();
 
 // --- HOME NAVIGATION ---
 function goHome() {

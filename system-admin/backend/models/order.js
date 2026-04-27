@@ -6,7 +6,7 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: { type: String, required: true },
     items: [
         {
-            productId: { type: Number, required: true },
+            productId: { type: String, required: true },
             name: { type: String },
             quantity: { type: Number, required: true },
             subtotal: { type: Number, required: true }

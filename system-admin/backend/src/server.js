@@ -4,6 +4,10 @@ import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import User from "../models/user.js";
+
 import Product from "../models/product.js";
 import Order from "../models/order.js";
 
@@ -18,13 +22,78 @@ const PORT = process.env.PORT || 5001;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://localhost:5173", "http://192.168.100.11:5500"],                                                       
+  origin: ["http://127.0.0.1:3000", "http://localhost:3000", "http://localhost:5173", "http://192.168.100.11:5500"],
   credentials: true
 }));
 
 // --- ROUTES ---
 app.use("/api/admin", authRoutes);
 app.use("/api/products", productRoutes);
+
+// ──── REGISTER A NEW USER ─────────────
+app.post('/api/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // check email
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    // new user
+    const newUser = new User({ name, email, password });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "User registered successfully!" });
+  } catch (error) {
+    console.error("Registration Error:", error);
+    res.status(500).json({ message: "Server error during registration" });
+  }
+});
+
+// ──── LOGIN AN EXISTING USER ─────────────
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // console.log(`\nLOGIN ATTEMPT: Email received is "${email}"`);
+
+    // find user by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      // console.log("Could not find this email in MongoDB!");
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    // console.log("Found the user in MongoDB!");
+
+    // un-hash and check the password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      // console.log("Password does not match!");
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+    // console.log("Password match!");
+
+    // generate a security token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET || 'supersecretkey',
+      { expiresIn: '1d' }
+    );
+
+    res.json({
+      message: "Login successful!",
+      token,
+      user: { name: user.name, email: user.email, role: user.role }
+    });
+
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ message: "Server error during login" });
+  }
+});
 
 // New checkout order
 app.post('/api/orders', async (req, res) => {
