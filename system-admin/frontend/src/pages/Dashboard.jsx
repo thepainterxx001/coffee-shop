@@ -161,7 +161,6 @@ const ActionButton = ({ label, icon, func, color }) => (
 );
 
 const RecentlyAddedItems = () => {
-  // Halimbawa ng data para sa mga bagong item
   const recentItems = [
     { id: 1, name: 'Barako Brew 250g', price: '₱200', dateAdded: '2 days ago', category: 'Coffee' },
     { id: 2, name: 'Retro Pixel Poster', price: '₱129', dateAdded: '4 days ago', category: 'Merch' },
