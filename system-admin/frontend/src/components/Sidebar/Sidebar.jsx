@@ -24,8 +24,6 @@ const Sidebar = () => {
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, path:"/dashboard" },
     { name: 'Products', icon: <Coffee size={20} />, path:"/products" },
     { name: 'Orders', icon: <ClipboardList size={20} />, path:"/orders" },
-    { name: 'Statistics', icon: <BarChart3 size={20} />, path:"/statistics" },
-    { name: 'Calendar', icon: <Calendar size={20} />, path:"/calendar" },
     { name: 'Settings', icon: <Settings size={20} />, path:"/settings" },
   ];
 

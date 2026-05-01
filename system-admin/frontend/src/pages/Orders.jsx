@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from "react";
 import Header from "../components/Header"
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, XCircle, Clock, RefreshCcw, Plus, X } from 'lucide-react';
+import { CheckCircle2, CheckCircle, XCircle, PlusCircle, Clock, RefreshCcw, Plus, X, ShoppingBag } from 'lucide-react';
 import productContext from "../context/products/productContext";
 import orderContext from "../context/orders/orderContext";
 
-const Orders = () => {
-  const { orders, markPaid, removeOrder } = useContext(orderContext);
+export const Orders = () => {
+  const { orders, markPaid, removeOrder, getOrder } = useContext(orderContext);
   const [ customer, setCustomer ] = useState(null);
   const [ takeOrder, setTakeOrder ] = useState(false);
+  const [ viewItems, setViewItems ] = useState(null);
 
   const StatusIcon = ({ status }) => {
     if (status === 'success') return <CheckCircle2 className="text-green-400 w-5 h-5" />;
@@ -22,10 +23,11 @@ const Orders = () => {
       return result ? { id: result._id, status: result.status } : null;
     });
 
-  }, [orders]);
+  }, [customer?.id, orders]);
 
   return (
     <div>
+      <ViewItems onClose={() => setViewItems(null)} items={viewItems} />
       <AnimatePresence>
         {takeOrder && (
           <motion.div
@@ -44,23 +46,31 @@ const Orders = () => {
         {/* SIDEBAR BUTTONS */}
         <div className="flex flex-col gap-3 w-56 shrink-0">
           <div className="mb-4 text-b1 font-bold text-xl px-2">Actions</div>
+          <button className="bg-b2 text-wh1 flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+          onClick={() => setTakeOrder(true)}>
+            Take Order <PlusCircle />
+          </button>
           
           {[
-            { label: 'Take Order', color: 'bg-b2 text-wh1', func: () => setTakeOrder(true) },
-            { label: `${customer?.status !== "success" ? "Mark as Paid" : "Mark as Pending"}`, color: `${customer?.status !== "success" ? "bg-green-600 text-white" : "bg-yellow-500 text-[#1c1c1c]"}`, 
+            { label: `${customer?.status !== "success" ? "Mark as Paid" : "Mark as Pending"}`, icon: <CheckCircle />, color: `${customer?.status !== "success" ? "bg-green-600 text-white" : "bg-yellow-500 text-[#1c1c1c]"}`, 
             func: () => markPaid(customer?.id, customer?.status !== "success" ? true : false) },
-            { label: 'Edit Order', color: 'bg-blue-500 text-white hover:bg-blue-600' },
-            { label: 'Cancel Order', color: 'bg-red-600 text-white hover:bg-red-700', func: () =>  removeOrder(customer?.id)},
-            { label: 'Refresh Orders', icon: <RefreshCcw />, color: 'border-2 border-[#47342E] text-[#47342E]' }
+            { label: 'Cancel Order', icon: <XCircle />, color: 'bg-red-600 text-white hover:bg-red-700', func: () =>  removeOrder(customer?.id)},
           ].map((btn, i) => (
             <button 
               key={i}
               className={`${btn.color} flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer`}
-              onClick={btn.func}
+              onClick={() => {
+                if (customer) btn.func()
+                else return
+              }}
             >
-              {btn.label} {btn?.icon || ""}
+              {btn.label} {btn?.icon}
             </button>
           ))}
+          <button className="border-2 border-b1 text-b1 flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+          onClick={() => getOrder()}>
+            Refresh Orders <RefreshCcw />
+          </button>
         </div>
 
         {/* MAIN TABLE CONTAINER */}
@@ -81,9 +91,10 @@ const Orders = () => {
             {/* BODY ORDER DATA */}
             <div className="overflow-y-auto flex-1 divide-y divide-wh1/10 custom-scrollbar">
               {orders?.map((order, idx) => (
-                <button 
+                <div 
                   key={order._id} 
                   className={`flex w-full items-center text-center transition-colors group
+                    ${order.status === "success" ? "hidden" : "flex"}
                     ${customer?.id === order._id ? "bg-b2" : "hover:bg-b2/30"}`}
                   onClick={() => {
                     setCustomer({
@@ -107,10 +118,19 @@ const Orders = () => {
                     <div className="text-start font-semibold text-sm text-wh1">{order.address}</div>
                   </div>
 
-                  <div className="w-[15%] py-4 flex justify-center">
-                    <div className="p-1 bg-wh1/10 rounded-lg">
-                      <img src={order.img} className="w-14 h-10 object-cover rounded shadow-sm" />
-                    </div>
+                  <div className="w-[15%] py-4 flex justify-center items-center">
+                    <button 
+                      onClick={() => setViewItems(order?.items)}
+                      className="group relative flex items-center gap-2 px-3 py-1.5 bg-b1/10 hover:bg-b1 text-b1 hover:text-white border border-b1/20 hover:border-b1 rounded-full transition-all duration-200 ease-in-out shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      <span className="text-[10px] font-bold bg-b1 text-white group-hover:bg-white group-hover:text-b1 w-5 h-5 flex items-center justify-center rounded-full transition-colors">
+                        {order?.items.length || 0}
+                      </span>
+                      
+                      <span className="text-xs text-wh1 font-semibold uppercase tracking-wider">
+                        View Items
+                      </span>
+                    </button>
                   </div>
 
                   <div className="w-[15%] py-4 text-sm font-medium">{order.paymentMethod.toUpperCase()}</div>
@@ -126,7 +146,7 @@ const Orders = () => {
                       <StatusIcon status={order.status} />
                     </div>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           </div>
@@ -136,7 +156,82 @@ const Orders = () => {
   )
 }
 
-const TakeOrder = ({ onClose }) => {
+const ViewItems = ({ isOpen, onClose, items }) => {
+  if (!items) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div 
+        className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity" 
+        onClick={onClose}
+      />
+
+      <div className="relative bg-white w-full max-w-md max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+        
+        {/* Header */}
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-wh2">
+          <div className="flex items-center gap-2">
+            <ShoppingBag className="text-b1" size={20} />
+            <h3 className="font-bold text-gray-800">Order Items ({items?.length})</h3>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors  cursor-pointer"
+          >
+            <X size={24} className="text-gray-500" />
+          </button>
+        </div>
+
+        {/* Items Card */}
+        <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+          <div className="flex flex-col gap-4">
+            {items?.map((item, idx) => (
+              <div 
+                key={idx} 
+                className="flex items-center gap-4 p-3 rounded-2xl bg-gray-50 border border-gray-100 hover:border-b1/30 transition-colors"
+              >
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-white shrink-0 shadow-sm">
+                  <img 
+                    src={item?.img} 
+                    alt={item?.name} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Details */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-gray-800 truncate uppercase text-sm">
+                    {item?.name}
+                  </h4>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Quantity: <span className="font-bold text-b1">{item?.quantity || 1}</span>
+                  </p>
+                </div>
+
+                {/* Price */}
+                <div className="text-right">
+                  <p className="font-bold text-gray-900 text-sm">
+                    ₱ {item?.subtotal?.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer (Optional) */}
+        <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
+          <span className="text-gray-500 text-sm font-medium">Total Amount</span>
+          <span className="text-xl font-black text-b1">
+            ₱ {items?.reduce((total, item) => total + (item.subtotal * (item.quantity || 1)), 0).toLocaleString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const TakeOrder = ({ onClose }) => {
   const { addOrder } = useContext(orderContext);
   const { allProducts, catProducts } = useContext(productContext);
   const [ category, setCategory ] = useState("All");
@@ -357,5 +452,3 @@ const TakeOrder = ({ onClose }) => {
     </div>
   );
 };
-
-export default Orders

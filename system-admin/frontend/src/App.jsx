@@ -4,9 +4,7 @@ import LoginPage from "./pages/LoginPage";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
-import Orders from "./pages/Orders";
-import Statistics from "./pages/Statistics";
-import Calendar from "./pages/Calendar";
+import { Orders } from "./pages/Orders";
 import Settings from "./pages/Settings";
 import { useContext } from "react";
 import authContext from "./context/auth/authContext";
@@ -40,20 +38,6 @@ const App = () => {
           <Route path="/orders" element={
             <ProtectedRoute>
               <Orders/>
-            </ProtectedRoute>
-          } />
-        </Route>
-        <Route element={ <Sidebar /> }>
-          <Route path="/statistics" element={
-            <ProtectedRoute>
-              <Statistics/>
-            </ProtectedRoute>
-          } />
-        </Route>
-        <Route element={ <Sidebar /> }>
-          <Route path="/calendar" element={
-            <ProtectedRoute>
-              <Calendar/>
             </ProtectedRoute>
           } />
         </Route>

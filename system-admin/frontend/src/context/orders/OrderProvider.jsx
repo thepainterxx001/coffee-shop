@@ -61,7 +61,7 @@ const OrderProvider = ({ children }) => {
   }, [authenticated])
 
   return (
-    <orderContext.Provider value={{ addOrder, markPaid, removeOrder, orders }}>
+    <orderContext.Provider value={{ getOrder, addOrder, markPaid, removeOrder, orders }}>
       { children }
     </orderContext.Provider>
   )

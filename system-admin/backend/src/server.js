@@ -100,7 +100,6 @@ app.post('/api/orders/add-order', async (req, res) => {
   try {
     const newOrder = new Order(req.body);
     await newOrder.save();
-    console.log(req.body);
     res.status(201).json({ message: "Order placed successfully!", orderId: newOrder._id });
   } catch (error) {
     console.error("Error placing order:", error);

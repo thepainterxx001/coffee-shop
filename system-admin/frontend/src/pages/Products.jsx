@@ -15,9 +15,9 @@ const Products = () => {
   const [ delConfirm, setDelConfirm ] = useState(null);
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full px-10">
       <Header />
-      <div className="flex flex-col h-[calc(100vh-80px)] w-full gap-5 pb-5 overflow-y-auto custom-scrollbar">
+      <div className="flex flex-col h-[calc(100vh-80px)] rounded-lg overflow-hidden w-full gap-5 pb-5 overflow-y-auto custom-scrollbar">
         <AllProducts setCreateProduct={setCreateProduct} setEditProduct={setEditProduct} setDelConfirm={setDelConfirm} />
         <CategoryProducts setCreateProduct={setCreateProduct} setEditProduct={setEditProduct} setDelConfirm={setDelConfirm} />
       </div>
@@ -39,9 +39,9 @@ const AllProducts = ({ setCreateProduct, setEditProduct, setDelConfirm }) => {
   const { allProducts } = useContext(productContext);
 
   return (
-    <div className="flex flex-col justify-center p-2 rounded-lg gap-4 bg-g1">
+    <div className="flex flex-col justify-center w-full py-4 px-6 rounded-lg gap-4 bg-g1">
       <h2 className="bg-wh1 w-max py-1 px-2 rounded-md">All Products</h2>
-      <div className="flex gap-4 pb-4 overflow-y-auto overflow-x-auto flex-wrap lg:flex-nowrap lg:flex-row scrollbar-hide">
+      <div className="flex gap-4 pb-4 overflow-y-auto overflow-x-auto flex-wrap lg:flex-row scrollbar-hide">
         <div className="relative min-w-55 h-50 rounded-2xl overflow-hidden group border-2 border-dashed border-gray-200 hover:border-b1 hover:bg-b2/25 transition-all duration-300 ease-in-out shadow-sm hover:shadow-md">
           <button className="flex flex-col items-center justify-center h-full w-full cursor-pointer text-gray-400 group-hover:text-b1 transition-colors group"
           onClick={() => setCreateProduct(true)}>
@@ -110,9 +110,9 @@ const CategoryProducts = ({ setCreateProduct, setEditProduct, setDelConfirm }) =
     <>
       {categories?.map(cat => {
         return (
-          <div key={cat} className="flex flex-col justify-center p-2 rounded-lg gap-4 bg-g1">
+          <div key={cat} className="flex flex-col justify-center w-full py-4 px-6 rounded-lg gap-4 bg-g1">
             <h2 className="bg-wh1 w-max py-1 px-2 rounded-md">{cat}</h2>
-            <div className="flex gap-4 pb-4 overflow-y-auto overflow-x-auto flex-wrap lg:flex-nowrap lg:flex-row scrollbar-hide">
+            <div className="flex gap-4 pb-4 overflow-y-auto overflow-x-auto flex-wrap lg:flex-row scrollbar-hide">
               {catProducts?.[cat]?.map((product) => (
                 <div 
                   key={product._id} 

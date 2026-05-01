@@ -239,16 +239,21 @@ function renderCart() {
     total += subtotal;
 
     const row = document.createElement('div'); row.className = 'cart-item';
-    row.innerHTML = `<div>
-      <div style="font-weight:700">${p.name}</div>
-      <div style="color:#666;font-size:13px">₱ ${p.price.toFixed(2)} × ${qty}</div>
+    row.innerHTML = `<div style="display: flex; gap: 12px; align-items: center;">
+      <div style="height: 50px; width: 50px; border-radius: 6px; overflow: hidden">
+        <img style="height: 100%; width: 100%; object-fit: cover;" src=${p.img} />
+      </div>
+      <div>
+        <div style="font-weight:700">${p.name}</div>
+        <div style="color:#666;font-size:13px">₱ ${p.price.toFixed(2)} × ${qty}</div>
+      </div>
     </div>
     <div style="text-align:right">
       <div style="font-weight:700">₱ ${subtotal.toFixed(2)}</div>
       <div style="margin-top:6px;display:flex;gap:6px;justify-content:flex-end">
-        <button class="icon-btn" onclick="changeItemQty('${k}',-1)">−</button>
+        <button class="icon-btn" onclick="changeItemQty('${k}',-1)">-</button>
         <button class="icon-btn" onclick="changeItemQty('${k}',1)">+</button>
-        <button class="icon-btn" onclick="removeItem('${k}')">🗑</button>
+        <button class="icon-btn" onclick="removeItem('${k}')">🗑️</button>
       </div>
     </div>`;
     list.appendChild(row);
@@ -338,6 +343,7 @@ async function confirmOrder() {
       orderItems.push({
         productId: product.id || product._id,
         name: product.name,
+        img: product.img,
         quantity: qty,
         subtotal: subtotal
       });
