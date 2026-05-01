@@ -10,14 +10,29 @@ const ProductProvider = ({children }) => {
   const { authenticated } = useContext(authContext);
   const [ loading, setLoading ] = useState(true); 
   const [ allProducts, setAllProducts ] = useState(null);
+  const [ catProducts, setCatProducts ] = useState(null);
   
   const getAllProducts = async () => {
     setLoading(false);
 
     try {
       const res = await axiosProduct.get("/all-products");
+      setAllProducts(res.data.allProducts);
+      setCatProducts(res.data.byCategory);
+    } catch (err) {
+      toast.error(err?.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const getCatProduct = async (category) => {
+    setLoading(false);
+
+    try {
+      const res = await axiosProduct.get(`/all-products/${category}`);
       console.log(res.data.products);
-      setAllProducts(res.data.products);
+      setCatProducts(prev => res.data.products);
     } catch (err) {
       toast.error(err?.response?.data?.message);
     } finally {
@@ -76,7 +91,7 @@ const ProductProvider = ({children }) => {
   }, [authenticated])
 
   return (
-    <productContext.Provider value={{ allProducts, addProduct, updateProduct, deleteProduct }}>
+    <productContext.Provider value={{ allProducts, catProducts, addProduct, updateProduct, deleteProduct }}>
       {children}
     </productContext.Provider>
   )

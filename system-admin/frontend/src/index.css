@@ -1,5 +1,45 @@
 @import "tailwindcss";
 
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+@utility custom-scrollbar-v2 {
+  scrollbar-width: thin;
+  scrollbar-color: #867772 transparent; /* Gagamit ng kulay g2 mo */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #867772; /* Kulay g2 */
+    border-radius: 20px;
+  }
+}
+
 @theme {
   --color-b1: #47342E;
   --color-b2: #534139;

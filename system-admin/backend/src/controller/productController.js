@@ -3,10 +3,26 @@ import cloudinary from "../middleware/cloudinary.js";
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({createdAt: -1});
+    const categories  = [ "Coffee", "Food", "Merch", "Gifts", "Equipment" ];
+
+    const products = await Product.find({
+      category: { $in: categories  }
+    }).sort({createdAt: -1}).lean();
+
+    const grouped = {};
+    
+    products.forEach(p => {
+      if (!grouped[p.category]) {
+        grouped[p.category] = [];
+      }
+      grouped[p.category].push(p);
+    });
+
+
     res.status(200).json({
       message: "Products loaded successfully",
-      products
+      allProducts: products,
+      byCategory: grouped
     });
   } catch (error) {
     console.error("Error fetching products:", error);

@@ -36,7 +36,7 @@ async function fetchProducts() {
   try {
     const response = await fetch('http://localhost:5001/api/products/all-products');
     const data = await response.json();
-    PRODUCTS = data.products;
+    PRODUCTS = data.allProducts;
 
     renderFeatured();
     renderGrid(PRODUCTS);

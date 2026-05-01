@@ -17,7 +17,10 @@ const Products = () => {
   return (
     <div className="h-full w-full">
       <Header />
-      <AllProducts setCreateProduct={setCreateProduct} setEditProduct={setEditProduct} setDelConfirm={setDelConfirm} />
+      <div className="flex flex-col h-[calc(100vh-80px)] w-full gap-5 pb-5 overflow-y-auto custom-scrollbar">
+        <AllProducts setCreateProduct={setCreateProduct} setEditProduct={setEditProduct} setDelConfirm={setDelConfirm} />
+        <CategoryProducts setCreateProduct={setCreateProduct} setEditProduct={setEditProduct} setDelConfirm={setDelConfirm} />
+      </div>
       {delConfirm &&
         <DeleteProductModal productName={delConfirm.name} onDelete={ async () => {
           await deleteProduct(delConfirm.id);
@@ -96,6 +99,73 @@ const AllProducts = ({ setCreateProduct, setEditProduct, setDelConfirm }) => {
         ))}
       </div>
     </div>
+  )
+}
+
+const CategoryProducts = ({ setCreateProduct, setEditProduct, setDelConfirm }) => {
+  const { catProducts } = useContext(productContext);
+  const categories  = [ "Coffee", "Food", "Merch", "Gifts", "Equipment" ];
+
+  return (
+    <>
+      {categories?.map(cat => {
+        return (
+          <div key={cat} className="flex flex-col justify-center p-2 rounded-lg gap-4 bg-g1">
+            <h2 className="bg-wh1 w-max py-1 px-2 rounded-md">{cat}</h2>
+            <div className="flex gap-4 pb-4 overflow-y-auto overflow-x-auto flex-wrap lg:flex-nowrap lg:flex-row scrollbar-hide">
+              {catProducts?.[cat]?.map((product) => (
+                <div 
+                  key={product._id} 
+                  className="relative min-w-55 h-50 rounded-2xl overflow-hidden group shadow-lg"
+                >
+                  {/* productg image */}
+                  <img 
+                    src={product.img} 
+                    alt={product.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  
+                  {/* Dark Overlay */}
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
+
+                  {/* Top Action Icons */}
+                  <div className="absolute top-3 right-3 flex gap-2 text-white opacity-90">
+                    <button className="hover:text-amber-200 cursor-pointer"
+                    onClick={() => setEditProduct({
+                      id: product._id,
+                      name: product.name,
+                      price: product.price,
+                      description: product.description,
+                      category: product.category,
+                      image: product.img
+                    })}>
+                      <Pencil className="w-5 h-5" />
+                    </button>
+                    <button className="hover:text-red-400 cursor-pointer"
+                    onClick={() => setDelConfirm({
+                      id: product._id,
+                      name: product.name
+                    })}>
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Bottom Info */}
+                  <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center text-white">
+                    <p className="font-medium truncate pr-2 text-sm drop-shadow-md">
+                      {product.name}
+                    </p>
+                    <span className="font-semibold text-lg drop-shadow-md">
+                      ₱{product.price}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+    </>
   )
 }
 

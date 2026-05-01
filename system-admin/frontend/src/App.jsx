@@ -5,8 +5,6 @@ import Sidebar from "./components/Sidebar/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Orders from "./pages/Orders";
-import Delivery from "./pages/Delivery";
-import Staff from "./pages/Staff";
 import Statistics from "./pages/Statistics";
 import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
@@ -42,20 +40,6 @@ const App = () => {
           <Route path="/orders" element={
             <ProtectedRoute>
               <Orders/>
-            </ProtectedRoute>
-          } />
-        </Route>
-        <Route element={ <Sidebar /> }>
-          <Route path="/delivery" element={
-            <ProtectedRoute>
-              <Delivery/>
-            </ProtectedRoute>
-          } />
-        </Route>
-        <Route element={ <Sidebar /> }>
-          <Route path="/staff" element={
-            <ProtectedRoute>
-              <Staff/>
             </ProtectedRoute>
           } />
         </Route>
