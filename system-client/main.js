@@ -351,7 +351,7 @@ async function confirmOrder() {
       totalAmount: calculatedTotal
     };
 
-    const response = await fetch('http://localhost:5001/api/orders', {
+    const response = await fetch('http://localhost:5001/api/orders/add-order', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

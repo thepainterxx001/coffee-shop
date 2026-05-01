@@ -96,14 +96,64 @@ app.post('/api/login', async (req, res) => {
 });
 
 // New checkout order
-app.post('/api/orders', async (req, res) => {
+app.post('/api/orders/add-order', async (req, res) => {
   try {
     const newOrder = new Order(req.body);
     await newOrder.save();
+    console.log(req.body);
     res.status(201).json({ message: "Order placed successfully!", orderId: newOrder._id });
   } catch (error) {
     console.error("Error placing order:", error);
     res.status(500).json({ message: "Failed to place order", error: error.message });
+  }
+});
+
+// Get all orders
+app.get('/api/orders/all-order', async (req, res) => {
+  try {
+    const allOrder = await Order.find();
+    res.status(200).json({ allOrder });
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).json({ message: "Failed to fetch orders", error: error.message });
+  }
+});
+
+// Mark order as paid/pending
+app.put('/api/orders/all-order/:id', async (req, res) => {
+  try {
+    const { paid } = req.body;
+
+    const paidOrder = await Order.findByIdAndUpdate(req.params.id, {
+      status: paid ? "success" : "pending"
+    }, { returnDocument: true });
+
+    if (!paidOrder) {
+      return res.status(404).json({ message: "Order not found." });
+    }
+
+    const message = paid
+    ? "Order successfully paid"
+    : "Order status updated to pending";
+
+    res.status(200).json({ message });
+  } catch (error) {
+    console.error("Error updating order:", error);
+    res.status(500).json({ message: "Failed to update order", error: error.message });
+  }
+});
+
+// Remove order
+app.delete('/api/orders/all-order/:id', async (req, res) => {
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(req.params.id);
+    if (!deletedOrder) {
+      return res.status(404).json({ message: "Order not found." });
+    }
+    res.status(200).json({ message: "Order has removed." });
+  } catch (error) {
+    console.error("Error removing order:", error);
+    res.status(500).json({ message: "Failed to remove order", error: error.message });
   }
 });
 
