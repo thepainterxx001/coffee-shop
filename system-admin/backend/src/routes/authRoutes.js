@@ -1,11 +1,12 @@
 import express from "express";
-import { newAdmin, loginAdmin, logoutAdmin } from "../controller/authController.js";
+import { newAdmin, updateAdmin, loginAdmin, logoutAdmin } from "../controller/authController.js";
 import authentication from "../middleware/authentication.js";
 import Admin from "../../models/admin.js";
 
 const router = express.Router();
 
 router.post("/new-admin", newAdmin);
+router.put("/update-admin/:id", updateAdmin);
 router.post("/login-admin", loginAdmin);
 router.post("/logout-admin", logoutAdmin);
 router.get("/access-admin", authentication("admin"), async (req, res) => {
@@ -13,7 +14,7 @@ router.get("/access-admin", authentication("admin"), async (req, res) => {
     const admin = await Admin.findById(req.user.id);
     if(!admin) return res.status(404).json({ message: "Cannot access admin, make sure your token is valid."});
 
-    res.status(200).json({ message: "Welcome to Admin System", admin: { id: admin._id } });
+    res.status(200).json({ message: "Welcome to Admin System", admin: { id: admin._id, name: admin.name, email: admin.email } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ messgae: "Server error, try again" });

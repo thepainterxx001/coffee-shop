@@ -24,6 +24,16 @@ export const newAdmin = async (req, res) => {
   } 
 }
 
+export const updateAdmin = async (req, res) => {
+  try {
+    await Admin.findByIdAndUpdate(req.params.id, req.body, { afterDocument: true });
+    res.status(200).json({ message: "Admin details updated successfully." });
+  } catch (err) {
+    console.log("Error in updateAdmin controller", err);
+    res.status(500).json({ message: "Error changing admin details, try again later." });
+  }
+}
+
 export const loginAdmin = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -54,11 +64,11 @@ export const loginAdmin = async (req, res) => {
 
     res.status(200).json({
       message: "Admin access granted.",
-      user: { id: admin._id }
+      user: { id: admin._id, name: admin.name, email: admin.email }
     });
   } catch (err) {
     console.log("Error in loginAdmin controller", err);
-    res.status(500).json({ message: "Internal server error." });
+    res.status(500).json({ message: "Error accessing admin system, please try again." });
   }
 }
 

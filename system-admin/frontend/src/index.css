@@ -1,5 +1,43 @@
 @import "tailwindcss";
 
+@theme {
+  --color-b1: #47342E;
+  --color-b2: #534139;
+  --color-g1: #C9BEBA;
+  --color-g2: #867772;
+  --color-g3: #A69993;
+  --color-wh1: #F9F5F2;
+
+  --color-app-bg: var(--bg-main);
+  --color-app-card: var(--bg-card);
+  --color-app-text: var(--text-main);
+  --color-app-border: var(--border-color);
+}
+
+@layer base {
+  :root {
+    --bg-main: var(--color-wh1);
+    --bg-card: #ffffff;
+    --text-main: var(--color-b1);
+    --border-color: #e5e7eb;
+    --scrollbar-thumb: #888;
+    --scrollbar-track: #f1f1f1;
+  }
+
+  .dark {
+    --bg-main: #1A1210;
+    --bg-card: #261C18;
+    --text-main: #F9F5F2;
+    --border-color: #3D2D27;
+    --scrollbar-thumb: var(--color-g2);
+    --scrollbar-track: transparent;
+  }
+
+  body {
+    @apply bg-app-bg text-app-text transition-colors duration-300;
+  }
+}
+
 @utility hide-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -9,25 +47,22 @@
 
 @utility custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   &::-webkit-scrollbar {
     width: 8px;
   }
   &::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--scrollbar-track);
   }
   &::-webkit-scrollbar-thumb {
-    background: #888;
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
-  }
-  &::-webkit-scrollbar-thumb:hover {
-    background: #555;
   }
 }
 
 @utility custom-scrollbar-v2 {
   scrollbar-width: thin;
-  scrollbar-color: #867772 transparent; /* Gagamit ng kulay g2 mo */
+  scrollbar-color: var(--color-g2) transparent;
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -35,22 +70,12 @@
     background: transparent;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: #867772; /* Kulay g2 */
+    background-color: var(--color-g2);
     border-radius: 20px;
   }
-}
-
-@theme {
-  --color-b1: #47342E;
-  --color-b2: #534139;
-  --color-g1: #C9BEBA;
-  --color-g2: #867772;
-  --color-g3: #A69993;
-  --color-wh1: #F9F5F2;
 }
 
 #root {
   height: 100vh;
   width: 100vw;
 }
-

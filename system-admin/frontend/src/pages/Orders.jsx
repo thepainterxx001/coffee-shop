@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import Header from "../components/Header"
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, CheckCircle, XCircle, PlusCircle, Clock, RefreshCcw, Plus, X, ShoppingBag } from 'lucide-react';
+import { CheckCircle2, CheckCircle, XCircle, PlusCircle, Clock, RefreshCcw, Plus, X, ShoppingBag, User } from 'lucide-react';
 import productContext from "../context/products/productContext";
 import orderContext from "../context/orders/orderContext";
 
@@ -22,11 +22,10 @@ export const Orders = () => {
       const result = orders?.find(o => o._id === customer?.id);
       return result ? { id: result._id, status: result.status } : null;
     });
-
   }, [customer?.id, orders]);
 
   return (
-    <div>
+    <div className="bg-app-bg transition-colors duration-300 px-10">
       <ViewItems onClose={() => setViewItems(null)} items={viewItems} />
       <AnimatePresence>
         {takeOrder && (
@@ -41,110 +40,99 @@ export const Orders = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      
       <Header />
-      <div className="min-h-screen p-8 flex gap-8 font-sans rounded-3xl bg-g1">
+      
+      <div className="min-h-screen py-8 flex flex-col lg:flex-row gap-8 font-sans bg-app-bg transition-colors">
+        
         {/* SIDEBAR BUTTONS */}
-        <div className="flex flex-col gap-3 w-56 shrink-0">
-          <div className="mb-4 text-b1 font-bold text-xl px-2">Actions</div>
+        <div className="flex flex-col gap-3 w-full lg:w-56 shrink-0">
+          <div className="mb-4 text-app-text font-bold text-xl px-2 opacity-90">Actions</div>
           <button className="bg-b2 text-wh1 flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
           onClick={() => setTakeOrder(true)}>
-            Take Order <PlusCircle />
+            Take Order <PlusCircle size={18}/>
           </button>
           
           {[
-            { label: `${customer?.status !== "success" ? "Mark as Paid" : "Mark as Pending"}`, icon: <CheckCircle />, color: `${customer?.status !== "success" ? "bg-green-600 text-white" : "bg-yellow-500 text-[#1c1c1c]"}`, 
+            { label: `${customer?.status !== "success" ? "Mark as Paid" : "Mark as Pending"}`, icon: <CheckCircle size={18}/>, color: `${customer?.status !== "success" ? "bg-green-600 text-white" : "bg-yellow-500 text-[#1c1c1c]"}`, 
             func: () => markPaid(customer?.id, customer?.status !== "success" ? true : false) },
-            { label: 'Cancel Order', icon: <XCircle />, color: 'bg-red-600 text-white hover:bg-red-700', func: () =>  removeOrder(customer?.id)},
+            { label: 'Cancel Order', icon: <XCircle size={18}/>, color: 'bg-red-600 text-white hover:bg-red-700', func: () =>  removeOrder(customer?.id)},
           ].map((btn, i) => (
             <button 
               key={i}
-              className={`${btn.color} flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer`}
-              onClick={() => {
-                if (customer) btn.func()
-                else return
-              }}
+              className={`${btn.color} flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+              onClick={() => customer && btn.func()}
+              disabled={!customer}
             >
               {btn.label} {btn?.icon}
             </button>
           ))}
-          <button className="border-2 border-b1 text-b1 flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer"
+          
+          <button className="border-2 border-app-border text-app-text flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:bg-app-card shadow-sm cursor-pointer"
           onClick={() => getOrder()}>
-            Refresh Orders <RefreshCcw />
+            Refresh <RefreshCcw size={18}/>
           </button>
         </div>
 
         {/* MAIN TABLE CONTAINER */}
-        <div className="flex-1 h-[80vh] bg-g2 rounded-3xl shadow-2xl overflow-hidden border border-wh1/20">
-          <div className="h-full flex flex-col text-wh1">
+        <div className="flex-1 h-[75vh] bg-app-card rounded-3xl shadow-2xl overflow-hidden border border-app-border transition-colors">
+          <div className="h-full flex flex-col">
 
             {/* HEADER */}
-            <div className="flex bg-b2 text-wh1 text-xs uppercase tracking-[0.15em] font-bold">
-              <div className="w-[10%] py-5 text-center">No.</div>
-              <div className="w-[30%] py-5 pl-4">Customer Name</div>
-              <div className="w-[30%] py-5 pl-4">Address</div>
-              <div className="w-[15%] py-5 text-center">Product</div>
-              <div className="w-[15%] py-5 text-center">Method</div>
-              <div className="w-[15%] py-5 text-center">Total</div>
+            <div className="flex bg-b2 text-wh1 text-[10px] uppercase tracking-[0.2em] font-bold">
+              <div className="w-[8%] py-5 text-center">No.</div>
+              <div className="w-[27%] py-5 pl-4">Customer</div>
+              <div className="w-[25%] py-5 pl-4">Address</div>
+              <div className="w-[15%] py-5 text-center">Items</div>
+              <div className="w-[10%] py-5 text-center">Total</div>
               <div className="w-[15%] py-5 text-center">Status</div>
             </div>
 
             {/* BODY ORDER DATA */}
-            <div className="overflow-y-auto flex-1 divide-y divide-wh1/10 custom-scrollbar">
+            <div className="overflow-y-auto flex-1 divide-y divide-app-border custom-scrollbar">
               {orders?.map((order, idx) => (
                 <div 
                   key={order._id} 
-                  className={`flex w-full items-center text-center transition-colors group
+                  className={`flex w-full items-center text-center transition-all group
                     ${order.status === "success" ? "hidden" : "flex"}
-                    ${customer?.id === order._id ? "bg-b2" : "hover:bg-b2/30"}`}
-                  onClick={() => {
-                    setCustomer({
-                      id: order._id,
-                      status: order.status
-                    })
-                  }}
+                    ${customer?.id === order._id ? "bg-b1/20 border-l-4 border-b1" : "hover:bg-app-bg/50"}`}
+                  onClick={() => setCustomer({ id: order._id, status: order.status })}
                 >
-                  <div className="w-[10%] py-4 text-wh1/60 font-mono text-sm">{idx + 1}</div>
+                  <div className="w-[8%] py-4 text-app-text opacity-40 font-mono text-xs">{idx + 1}</div>
 
-                  <div className="w-[30%] py-4">
-                    <div className="flex items-center gap-4 pl-4">
-                      <div className="relative">
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-g2 rounded-full"></div>
-                      </div>
-                        <div className="font-semibold text-sm text-wh1">{order.customerName}</div>
+                  <div className="w-[27%] py-4">
+                    <div className="flex items-center gap-3 pl-4 text-left">
+                        <div className="w-8 h-8 rounded-full bg-b1/20 flex items-center justify-center text-b1">
+                            <User size={16} />
+                        </div>
+                        <div className="font-semibold text-sm text-app-text">{order.customerName}</div>
                     </div>
                   </div>
 
-                  <div className="w-[30%] py-4">
-                    <div className="text-start font-semibold text-sm text-wh1">{order.address}</div>
+                  <div className="w-[25%] py-4">
+                    <div className="text-left font-medium text-xs text-app-text opacity-70 truncate pr-4">{order.address}</div>
                   </div>
 
-                  <div className="w-[15%] py-4 flex justify-center items-center">
+                  <div className="w-[15%] py-4 flex justify-center">
                     <button 
-                      onClick={() => setViewItems(order?.items)}
-                      className="group relative flex items-center gap-2 px-3 py-1.5 bg-b1/10 hover:bg-b1 text-b1 hover:text-white border border-b1/20 hover:border-b1 rounded-full transition-all duration-200 ease-in-out shadow-sm active:scale-95 cursor-pointer"
+                      onClick={(e) => { e.stopPropagation(); setViewItems(order?.items); }}
+                      className="group relative flex items-center gap-2 px-3 py-1 bg-app-bg border border-app-border hover:border-b1 rounded-full transition-all text-app-text cursor-pointer"
                     >
-                      <span className="text-[10px] font-bold bg-b1 text-white group-hover:bg-white group-hover:text-b1 w-5 h-5 flex items-center justify-center rounded-full transition-colors">
+                      <span className="text-[10px] font-bold bg-b1 text-wh1 w-5 h-5 flex items-center justify-center rounded-full">
                         {order?.items.length || 0}
                       </span>
-                      
-                      <span className="text-xs text-wh1 font-semibold uppercase tracking-wider">
-                        View Items
-                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">View</span>
                     </button>
                   </div>
-
-                  <div className="w-[15%] py-4 text-sm font-medium">{order.paymentMethod.toUpperCase()}</div>
                   
-                  <div className="w-[15%] py-4">
-                    <span className="bg-b1 px-3 py-1 rounded-full text-xs font-semibold">
-                      ₱ {order.totalAmount?.toLocaleString()}
+                  <div className="w-[10%] py-4">
+                    <span className="text-app-text font-bold text-sm">
+                      ₱{order.totalAmount?.toLocaleString()}
                     </span>
                   </div>
 
                   <div className="w-[15%] py-4 flex justify-center">
-                    <div className="transform group-hover:scale-110 transition-transform">
-                      <StatusIcon status={order.status} />
-                    </div>
+                    <StatusIcon status={order.status} />
                   </div>
                 </div>
               ))}
@@ -156,74 +144,45 @@ export const Orders = () => {
   )
 }
 
-const ViewItems = ({ isOpen, onClose, items }) => {
+const ViewItems = ({ onClose, items }) => {
   if (!items) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity" 
-        onClick={onClose}
-      />
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" onClick={onClose} />
 
-      <div className="relative bg-white w-full max-w-md max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-        
-        {/* Header */}
-        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-wh2">
+      <div className="relative bg-app-card w-full max-w-md max-h-[80vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col border border-app-border transition-colors">
+        <div className="p-5 border-b border-app-border flex justify-between items-center bg-app-bg/50">
           <div className="flex items-center gap-2">
             <ShoppingBag className="text-b1" size={20} />
-            <h3 className="font-bold text-gray-800">Order Items ({items?.length})</h3>
+            <h3 className="font-bold text-app-text">Order Items ({items?.length})</h3>
           </div>
-          <button 
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors  cursor-pointer"
-          >
-            <X size={24} className="text-gray-500" />
+          <button onClick={onClose} className="p-1 hover:bg-app-bg rounded-full transition-colors text-app-text opacity-50 hover:opacity-100 cursor-pointer">
+            <X size={24} />
           </button>
         </div>
 
-        {/* Items Card */}
-        <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
-          <div className="flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto p-5 custom-scrollbar space-y-4">
             {items?.map((item, idx) => (
-              <div 
-                key={idx} 
-                className="flex items-center gap-4 p-3 rounded-2xl bg-gray-50 border border-gray-100 hover:border-b1/30 transition-colors"
-              >
-                <div className="w-16 h-16 rounded-xl overflow-hidden bg-white shrink-0 shadow-sm">
-                  <img 
-                    src={item?.img} 
-                    alt={item?.name} 
-                    className="w-full h-full object-cover"
-                  />
+                <div key={idx} className="flex items-center gap-4 p-3 rounded-2xl bg-app-bg/30 border border-app-border">
+                <div className="w-14 h-14 rounded-xl overflow-hidden bg-white shrink-0">
+                    <img src={item?.img} alt={item?.name} className="w-full h-full object-cover" />
                 </div>
-
-                {/* Details */}
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-gray-800 truncate uppercase text-sm">
-                    {item?.name}
-                  </h4>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Quantity: <span className="font-bold text-b1">{item?.quantity || 1}</span>
-                  </p>
+                    <h4 className="font-semibold text-app-text truncate text-sm uppercase">{item?.name}</h4>
+                    <p className="text-xs text-app-text opacity-50">Qty: <span className="font-bold text-b1">{item?.quantity || 1}</span></p>
                 </div>
-
-                {/* Price */}
                 <div className="text-right">
-                  <p className="font-bold text-gray-900 text-sm">
-                    ₱ {item?.subtotal?.toLocaleString()}
-                  </p>
+                    <p className="font-bold text-app-text text-sm">₱{item?.subtotal?.toLocaleString()}</p>
                 </div>
-              </div>
+                </div>
             ))}
-          </div>
         </div>
 
-        {/* Footer (Optional) */}
-        <div className="p-5 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
-          <span className="text-gray-500 text-sm font-medium">Total Amount</span>
+        <div className="p-5 border-t border-app-border bg-app-bg/50 flex justify-between items-center">
+          <span className="text-app-text opacity-50 text-sm font-medium">Total Amount</span>
           <span className="text-xl font-black text-b1">
-            ₱ {items?.reduce((total, item) => total + (item.subtotal * (item.quantity || 1)), 0).toLocaleString()}
+            ₱{items?.reduce((total, item) => total + (item.subtotal * (item.quantity || 1)), 0).toLocaleString()}
           </span>
         </div>
       </div>
@@ -236,215 +195,123 @@ export const TakeOrder = ({ onClose }) => {
   const { allProducts, catProducts } = useContext(productContext);
   const [ category, setCategory ] = useState("All");
   const [ orderSum, setOrderSum ] = useState([]);
-
-  // customer details for order
   const [ paymentMeth, setPaymenthMeth ] = useState("Cash");
 
   const addItem = (item) => {
     setOrderSum(prev => {
       const existing = prev.find(p => p._id === item._id);
-
       if (existing) {
-        // update qty
-        return prev.map(p =>
-          p._id === item._id
-            ? { ...p, quantity: p.quantity + 1, subtotal: p.price * (p.quantity + 1) }
-            : p
-        );
+        return prev.map(p => p._id === item._id ? { ...p, quantity: p.quantity + 1, subtotal: p.price * (p.quantity + 1) } : p);
       }
-
-      // add new item with qty = 1
       return [...prev, { ...item, quantity: 1, subtotal: item.price }];
     });
   }
 
-  const removeItem = (id) => {
-    const result = orderSum.filter(o => o._id !== id);
-    setOrderSum(result);
-  }
+  const removeItem = (id) => setOrderSum(orderSum.filter(o => o._id !== id));
 
   return (
-    <div className="min-h-screen w-full bg-wh1/25 backdrop-blur-lg text-b1 p-4 md:p-6 lg:p-8 relative overflow-hidden">
+    <div className="h-full w-full bg-app-bg/95 backdrop-blur-[2px] text-app-text p-4 md:p-8 relative overflow-hidden transition-colors">
       
-      <div className="absolute -top-20 -left-20 w-60 h-60 bg-b2/10 rounded-full blur-3xl" />
-      <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-g2/10 rounded-full blur-3xl" />
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-b1/20 rounded-full blur-3xl" />
+      <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-b2/20 rounded-full blur-3xl" />
 
-      <div className="flex flex-col lg:flex-row h-[calc(100vh-4rem)] gap-6 relative z-10">
+      <div className="flex flex-col lg:flex-row h-full gap-6 relative z-10">
         
-        {/* =========================================================
-           LEFT SIDE: Product Selection
-           ========================================================= */}
-        <div className="flex-1 flex flex-col bg-white/20 backdrop-blur-xl border border-white/30 rounded-3xl p-6 shadow-xl overflow-hidden">
-          
-          {/* Header & Categories */}
+        {/* LEFT: Products */}
+        <div className="flex-1 flex flex-col bg-app-card border border-app-border rounded-[2.5rem] p-6 shadow-xl overflow-hidden transition-colors">
           <header className="mb-6">
-            <div className="flex items-center justify-between gap-4 mb-5">
-              <div className="flex items-center gap-2">
-                <button className="px-4 py-1.5 rounded-full bg-b1/10 border border-b1/20 text-b1 text-sm font-medium hover:bg-b1 hover:text-wh1 transition-all cursor-pointer"
-                onClick={() => onClose()}
-                >
-                  Close
-                </button>
-                <h1 className="text-3xl font-extrabold text-b1 tracking-tight">Take Order</h1>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <button onClick={onClose} className="p-2 rounded-full bg-app-bg hover:bg-b1 hover:text-wh1 transition-all border border-app-border cursor-pointer"><X size={20}/></button>
+                <h1 className="text-3xl font-black text-app-text tracking-tight">Take Order</h1>
               </div>
-              {/* Search Bar */}
               <input 
                 type="search" 
-                placeholder="Search products..." 
-                className="px-4 py-2 rounded-full bg-white/40 border border-b1/50 text-b1 placeholder:text-g2/70 focus:ring-2 focus:ring-b1/50 outline-none transition w-full max-w-xs"
+                placeholder="Search menu..." 
+                className="px-5 py-2.5 rounded-full bg-app-bg border border-app-border text-app-text placeholder:opacity-30 focus:ring-2 focus:ring-b1 outline-none w-full md:max-w-xs transition-all"
               />
             </div>
             
-            {/* Category Tabs */}
             <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-              {['All', 'Coffee', 'Food', 'Merch', 'Gifts', "Equipment"].map((cat, i) => (
-                <button key={cat} className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${category === cat ? 'bg-b1 text-wh1' : 'bg-white/40 hover:bg-b1/50 hover:text-wh1 text-b2 border border-white/20'} cursor-pointer`}
-                onClick={() => setCategory(cat)}>
-                  {cat}
+              {['All', 'Coffee', 'Food', 'Merch', 'Gifts'].map((cat) => (
+                <button key={cat} onClick={() => setCategory(cat)} className={`px-6 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${category === cat ? 'bg-b1 text-wh1 shadow-lg shadow-b1/20' : 'bg-app-bg text-app-text opacity-60 hover:opacity-100 border border-app-border'}`}>
+                  {cat.toUpperCase()}
                 </button>
               ))}
             </div>
           </header>
 
-          {/* Product Grid - Scrollable area */}
           <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar pb-6">
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {category === "All"
-                ? (
-                  <>
-                    {allProducts?.map((product) => (
-                      /* 2. PRODUCT CARD */
-                      <div key={product._id} className="group bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl p-4 shadow-sm hover:shadow-lg hover:border-b1/30 transition-all duration-300 flex flex-col cursor-pointer">
-                        {/* Image Placeholder */}
-                        <div className="h-45 bg-g1/50 rounded-xl mb-4 flex items-center justify-center text-b1 font-bold group-hover:scale-105 transition-transform">
-                          <img className="h-full w-full object-cover object-center" src={product.img} alt={product.name} />
+                {(category === "All" ? allProducts : catProducts?.[category])?.map((product) => (
+                    <div key={product._id} className="group bg-app-bg border border-app-border rounded-3xl p-3 hover:border-b1 transition-all flex flex-col shadow-sm">
+                        <div className="aspect-square bg-white rounded-2xl mb-3 overflow-hidden">
+                            <img className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500" src={product.img} alt={product.name} />
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-b1 text-sm md:text-base leading-tight mb-1">{product.name}</h3>
-                          <p className="text-g2 text-xs mb-3">{product.category}</p>
+                        <h3 className="font-bold text-app-text text-sm mb-1 truncate">{product.name}</h3>
+                        <div className="flex items-center justify-between mt-auto">
+                            <p className="font-black text-b1 text-sm">₱{product.price}</p>
+                            <button onClick={() => addItem(product)} className="p-2 rounded-xl bg-b1 text-wh1 hover:bg-b2 transition-colors cursor-pointer"><Plus size={16}/></button>
                         </div>
-                        <div className="flex items-center justify-between gap-2 mt-auto">
-                          <p className="font-bold text-b1">₱ {product.price.toFixed(2)}</p>
-                          <button className="p-2 rounded-full bg-b1/80 text-wh1 hover:bg-b1 transition-colors scale-90 group-hover:scale-100 cursor-pointer"
-                          onClick={() => addItem({
-                            _id: product._id,
-                            name: product.name,
-                            price: product.price,
-                            img: product.img,
-                          })}>
-                            <span className="text-lg">
-                              <Plus />
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                )
-                : (
-                  <>
-                    {catProducts?.[category]?.map((product) => (
-                      /* 2. PRODUCT CARD */
-                      <div key={product._id} className="group bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl p-4 shadow-sm hover:shadow-lg hover:border-b1/30 transition-all duration-300 flex flex-col cursor-pointer">
-                        {/* Image Placeholder */}
-                        <div className="h-45 bg-g1/50 rounded-xl mb-4 flex items-center justify-center text-b1 font-bold group-hover:scale-105 transition-transform">
-                          <img className="h-full w-full object-cover object-center" src={product.img} alt={product.name} />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-b1 text-sm md:text-base leading-tight mb-1">{product.name}</h3>
-                          <p className="text-g2 text-xs mb-3">{product.category}</p>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 mt-auto">
-                          <p className="font-bold text-b1">₱ {product.price.toFixed(2)}</p>
-                          <button className="p-2 rounded-full bg-b1/80 text-wh1 hover:bg-b1 transition-colors scale-90 group-hover:scale-100 cursor-pointer"
-                          onClick={() => addItem({
-                            _id: product._id,
-                            name: product.name,
-                            price: product.price,
-                            img: product.img
-                          })}>
-                            <span className="text-lg">
-                              <Plus />
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                )}
+                    </div>
+                ))}
             </div>
           </div>
         </div>
 
-        {/* =========================================================
-           RIGHT SIDE: Order Summary
-           ========================================================= */}
-        <aside className="w-full lg:w-96 flex flex-col bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 shadow-2xl overflow-hidden">
+        {/* RIGHT: Order Summary */}
+        <aside className="w-full lg:w-100 flex flex-col bg-app-card border border-app-border rounded-[2.5rem] p-6 shadow-2xl transition-colors">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-b1">Current Order</h2>
-            <button className="text-sm text-g2 hover:text-b1 cursor-pointer"
-            onClick={() => setOrderSum([])}>
-              Clear All
-            </button>
+            <h2 className="text-xl font-bold text-app-text">Cart Summary</h2>
+            <button onClick={() => setOrderSum([])} className="text-xs font-bold text-red-400 hover:underline cursor-pointer">CLEAR ALL</button>
           </div>
           
-          {/* Cart Items List */}
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4">
-            {orderSum?.length === 0
-            && "No orders available at the moment."}
-            {orderSum?.map(item => (
-                <div key={item._id} className="flex gap-3 items-center p-3 bg-white/30 rounded-xl border border-white/20">
-                    <div className="w-12 h-12 bg-g1/50 rounded-lg flex items-center justify-center text-b1 font-bold">
-                      <img className="h-full w-full object-contain object-center" src={item.img} alt={item.name} />
-                    </div>
-                    <div className="flex-1">
-                        <p className="font-medium text-b1 text-sm">{item.name}</p>
-                        <p className="text-xs text-b2">₱ {item.price + " × " + item.quantity}</p>
-                    </div>
-                    <p className="font-bold text-b1">₱ {item.price * item.quantity}</p>
-                    <button className="text-xs text-g2 hover:text-red-500 p-1 cursor-pointer"
-                    onClick={() =>removeItem(item._id)}>
-                      <X />
-                    </button>
+          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3">
+            {orderSum.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center opacity-20">
+                    <ShoppingBag size={48} />
+                    <p className="text-sm font-bold mt-2">Empty Cart</p>
                 </div>
-            ))}
+            ) : (
+                orderSum.map(item => (
+                    <div key={item._id} className="flex gap-3 items-center p-3 bg-app-bg rounded-2xl border border-app-border group">
+                        <div className="w-12 h-12 bg-white rounded-lg overflow-hidden shrink-0"><img className="w-full h-full object-cover" src={item.img} /></div>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-bold text-app-text text-xs truncate">{item.name}</p>
+                            <p className="text-[10px] text-app-text opacity-50">₱{item.price} x {item.quantity}</p>
+                        </div>
+                        <p className="font-bold text-b1 text-sm">₱{item.subtotal}</p>
+                        <button onClick={() => removeItem(item._id)} className="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"><X size={14}/></button>
+                    </div>
+                ))
+            )}
           </div>
 
-          {/* Checkout Section (Fixed at bottom of aside) */}
-          <div className="mt-6 border-t border-white/50 pt-5 space-y-4">
-            <div className="flex justify-between text-xl font-extrabold text-b1 pt-3">
-              <span>Total</span>
-              <span>
-                ₱ {orderSum?.reduce((total, item) => {
-                  return total + (item.price * item.quantity);
-                }, 0)}
-              </span>
+          <div className="mt-6 pt-5 border-t border-app-border space-y-4">
+            <div className="flex justify-between items-end mb-2">
+              <span className="text-xs font-bold text-app-text opacity-50">SUBTOTAL</span>
+              <span className="text-2xl font-black text-b1">₱{orderSum.reduce((t, i) => t + i.subtotal, 0).toLocaleString()}</span>
             </div>
-            <div className="relative w-full">
-              <label className="text-xs font-semibold text-b1/70 mb-1 block uppercase tracking-wider ml-1">
-                Payment Method
-              </label>
-              
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-app-text opacity-40 ml-1">PAYMENT METHOD</label>
               <select 
-                className="w-full appearance-none px-4 py-3 bg-white/30 backdrop-blur-md border border-white/30 rounded-xl text-b1 font-medium focus:ring-2 focus:ring-b1/50 outline-none transition-all cursor-pointer hover:bg-white/40"
+                className="w-full bg-app-bg border border-app-border rounded-xl px-4 py-3 text-app-text font-bold text-sm focus:ring-2 focus:ring-b1 outline-none transition-all cursor-pointer"
                 value={paymentMeth}
                 onChange={(e) => setPaymenthMeth(e.target.value)}
               >
-                <option value="Cash">Cash</option>
-                <option value="GCash">G-Cash</option>
-                <option value="Card">Card</option>
+                <option value="Cash" className="bg-app-card">💵 Cash</option>
+                <option value="GCash" className="bg-app-card">📱 GCash</option>
+                <option value="Card" className="bg-app-card">💳 Card</option>
               </select>
-
-              <div className="pointer-events-none absolute right-4 top-9.5 text-b1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
             </div>
-            <button className="w-full py-4 bg-b1 text-wh1 font-bold rounded-2xl hover:bg-b2 transition-all shadow-lg shadow-b1/20 active:scale-[0.98]
-            cursor-pointer"
-            onClick={() => addOrder(paymentMeth, orderSum)}>
-              Add Order
+
+            <button 
+                onClick={async () => { await addOrder(paymentMeth, orderSum); setOrderSum([]); onClose(); }}
+                disabled={orderSum.length === 0}
+                className="w-full py-4 bg-b1 text-wh1 font-black rounded-2xl hover:bg-b2 transition-all shadow-lg shadow-b1/20 active:scale-95 disabled:opacity-50 disabled:active:scale-100 cursor-pointer"
+            >
+              COMPLETE ORDER
             </button>
           </div>
         </aside>

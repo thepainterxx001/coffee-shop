@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 const AuthProvider = ({ children }) => {
   const [ authenticated, setAuthenticated ] = useState(false);
   const [ loading, setLoading ] = useState(true); 
+  const [ admin, setAdmin ] = useState(null);
 
   const loginAdmin = async (body) => {
     if (loading) return;
@@ -24,12 +25,26 @@ const AuthProvider = ({ children }) => {
     }
   }
 
+  const editAdmin = async (body) => {
+    setLoading(true);
+    try {
+      const res = await axiosAdmin.put(`/update-admin/${admin.id}`, body);
+      await checkAuth({ showLoading: false });
+      toast.success(res?.data.message);
+    } catch (err) {
+      toast.error(err?.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const checkAuth = async ({ showLoading = false }) => {
     showLoading ? setLoading(true) : setLoading(false);
     
     try {
-      await axiosAdmin.get("/access-admin");
+      const res = await axiosAdmin.get("/access-admin");
       setAuthenticated(true);
+      setAdmin(res.data.admin);
     } catch (err) {
       console.log(err);
       setAuthenticated(false);
@@ -43,7 +58,7 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <authContext.Provider value={{ checkAuth, authenticated, loginAdmin }}>
+    <authContext.Provider value={{ admin, editAdmin, checkAuth, authenticated, loginAdmin }}>
       { children }
     </authContext.Provider>
   )

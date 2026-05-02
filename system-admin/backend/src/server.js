@@ -98,8 +98,10 @@ app.post('/api/login', async (req, res) => {
 // New checkout order
 app.post('/api/orders/add-order', async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
-    await newOrder.save();
+    const { customerName = `Guest${Date.now().toLocaleString("en-PH").replace(/,/g, "")}`, address, paymentMethod, items, totalAmount, status, orderDate } = req.body;
+
+    const newOrder = await Order.create({ customerName, address, paymentMethod, items, totalAmount, status, orderDate });
+
     res.status(201).json({ message: "Order placed successfully!", orderId: newOrder._id });
   } catch (error) {
     console.error("Error placing order:", error);

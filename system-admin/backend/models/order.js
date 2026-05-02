@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const orderSchema = new mongoose.Schema({
-    customerName: { type: String, default: `Guest${Date.now().toLocaleString("en-PH").replace(/,/g, "")}`, required: true },
+    customerName: { type: String, required: true },
     address: { type: String, default: "Walk-in customer", required: true },
     paymentMethod: { type: String, required: true },
     items: [
