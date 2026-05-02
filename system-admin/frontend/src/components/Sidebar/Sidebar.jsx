@@ -25,7 +25,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     setActivePath(location.pathname);
-    setIsSidebarOpen(false); // Close sidebar on route change
+    setIsSidebarOpen(false);
   }, [location]);
 
   return (
