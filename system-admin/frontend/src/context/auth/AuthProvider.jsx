@@ -25,12 +25,13 @@ const AuthProvider = ({ children }) => {
     }
   }
 
-  const editAdmin = async (body) => {
+  const editAdmin = async (body, setForm) => {
     setLoading(true);
     try {
       const res = await axiosAdmin.put(`/update-admin/${admin.id}`, body);
       await checkAuth({ showLoading: false });
       toast.success(res?.data.message);
+      setForm({});
     } catch (err) {
       toast.error(err?.response?.data?.message);
     } finally {

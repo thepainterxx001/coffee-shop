@@ -26,7 +26,31 @@ export const newAdmin = async (req, res) => {
 
 export const updateAdmin = async (req, res) => {
   try {
-    await Admin.findByIdAndUpdate(req.params.id, req.body, { afterDocument: true });
+    const { name, email, currentPass, confirmPass, newPass } = req.body;
+    const admin = await Admin.findById(req.params.id);
+
+    if (currentPass || confirmPass || newPass) {
+      if (!currentPass || !confirmPass || !newPass) {
+        return res.status(400).json({
+          message: "All password fields are required."
+        });
+      }
+
+      const checkPassword =  await bcrypt.compare(currentPass, admin.password);
+      if (!checkPassword)
+        return res.status(400).json({ message: "Failed to update password. Please ensure your current password is correct." });
+
+      if (newPass !== confirmPass)
+        return res.status(400).json({ message: "Passwords do not match." });
+
+      admin.password = await bcrypt.hash(newPass, 10);
+    } 
+
+    if (name) admin.name = name;
+    if (email) admin.email = email;
+
+    await admin.save();
+
     res.status(200).json({ message: "Admin details updated successfully." });
   } catch (err) {
     console.log("Error in updateAdmin controller", err);

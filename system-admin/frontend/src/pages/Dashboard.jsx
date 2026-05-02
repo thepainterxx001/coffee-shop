@@ -119,9 +119,12 @@ const Dashboard = () => {
                    label={`${customer?.status !== "success" ? "Mark as Paid" : "Mark as Pending"}`} 
                    icon={<CheckCircle size={18}/>} 
                    func={() => markPaid(customer?.id, customer?.status !== "success" ? true : false)} 
-                   color={`${customer?.status !== "success" ? "bg-green-600/20 !text-green-500 border border-green-500/50 hover:bg-green-600 hover:!text-white" : "bg-amber-500/20 !text-amber-500 border border-amber-500/50 hover:bg-amber-500 hover:!text-white"}`} 
+                   color={`${customer?.status !== "success" ? "bg-green-600/20 !text-green-500 border border-green-500/50 hover:bg-green-600 hover:!text-white" : "bg-amber-500/20 !text-amber-500 border border-amber-500/50 hover:bg-amber-500 hover:!text-white"}`}
+                   disabled={!customer}
                 />
-                <ActionButton label="Cancel Order" icon={<XCircle size={18}/>} color="bg-red-600/20 !text-red-500 border border-red-500/50 hover:bg-red-600 hover:!text-white" func={() => removeOrder(customer?.id)} />
+                <ActionButton label="Cancel Order" icon={<XCircle size={18}/>} color="bg-red-600/20 !text-red-500 border border-red-500/50 hover:bg-red-600 hover:!text-white" func={() => removeOrder(customer?.id)} 
+                disabled={!customer || customer?.status === "success"} 
+                />
                 <ActionButton label="Refresh Orders" icon={<RefreshCw size={18}/>} color="bg-app-bg !text-app-text/60 border border-app-border hover:!text-app-text" func={() => getOrder()} />
               </div>
 
@@ -172,9 +175,10 @@ const StatCard = ({ title, value, alert }) => (
   </div>
 );
 
-const ActionButton = ({ label, icon, func, color }) => (
-  <button className={`w-full flex items-center justify-center gap-3 p-4 rounded-2xl font-black text-xs uppercase tracking-tight transition-all active:scale-95 shadow-lg shadow-black/5 cursor-pointer ${color}`}
-  onClick={func}>
+const ActionButton = ({ label, icon, func, color, disabled }) => (
+  <button className={`w-full flex items-center justify-center gap-3 p-4 rounded-2xl font-black text-xs uppercase tracking-tight transition-all active:scale-95 shadow-lg shadow-black/5 ${disabled ? "cursor-not-allowed" : "cursor-pointer"} ${color}`}
+  onClick={func}
+  disabled={disabled}>
     {icon} {label}
   </button>
 );

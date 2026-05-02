@@ -62,7 +62,7 @@ export const Orders = () => {
               key={i}
               className={`${btn.color} flex items-center justify-center gap-3 px-4 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
               onClick={() => customer && btn.func()}
-              disabled={!customer}
+              disabled={!customer || customer?.status === "success"}
             >
               {btn.label} {btn?.icon}
             </button>
@@ -78,42 +78,79 @@ export const Orders = () => {
         <div className="flex-1 h-[75vh] bg-app-card rounded-3xl shadow-2xl overflow-hidden border border-app-border transition-colors">
           <div className="h-full flex flex-col">
 
-            {/* HEADER */}
-            <div className="flex bg-b2 text-wh1 text-[10px] uppercase tracking-[0.2em] font-bold">
+            {/* HEADER - Hidden on mobile, visible on Large screens */}
+            <div className="hidden lg:flex bg-b2 text-wh1 text-[10px] uppercase tracking-[0.2em] font-bold">
               <div className="w-[8%] py-5 text-center">No.</div>
               <div className="w-[27%] py-5 pl-4">Customer</div>
-              <div className="w-[25%] py-5 pl-4">Address</div>
+              <div className="w-[15%] py-5 pl-4">Address</div>
+              <div className="w-[10%] py-5 text-center">Method</div>
               <div className="w-[15%] py-5 text-center">Items</div>
               <div className="w-[10%] py-5 text-center">Total</div>
               <div className="w-[15%] py-5 text-center">Status</div>
             </div>
 
             {/* BODY ORDER DATA */}
-            <div className="overflow-y-auto flex-1 divide-y divide-app-border custom-scrollbar">
+            <div className="overflow-y-auto flex-1 divide-y divide-app-border custom-scrollbar p-4 lg:p-0">
               {orders?.map((order, idx) => (
                 <div 
                   key={order._id} 
-                  className={`flex w-full items-center text-center transition-all group
+                  className={`
+                    w-full transition-all group cursor-pointer
                     ${order.status === "success" ? "hidden" : "flex"}
-                    ${customer?.id === order._id ? "bg-b1/20 border-l-4 border-b1" : "hover:bg-app-bg/50"}`}
+                    ${customer?.id === order._id ? "bg-b1/20 border-l-4 border-b1 lg:border-l-4" : "hover:bg-app-bg/50"}
+                    flex-col lg:flex-row lg:items-center text-center mb-4 lg:mb-0 rounded-2xl lg:rounded-none border lg:border-none border-app-border lg:divide-none
+                  `}
                   onClick={() => setCustomer({ id: order._id, status: order.status })}
                 >
-                  <div className="w-[8%] py-4 text-app-text opacity-40 font-mono text-xs">{idx + 1}</div>
+                  {/* DESKTOP INDEX / MOBILE HEADER */}
+                  <div className="lg:w-[8%] py-2 lg:py-4 text-app-text opacity-40 font-mono text-xs flex justify-between px-4 lg:block">
+                    <span className="lg:hidden font-bold uppercase tracking-widest text-[9px]">Order #{idx + 1}</span>
+                    <span className="hidden lg:inline">{idx + 1}</span>
+                  </div>
 
-                  <div className="w-[27%] py-4">
-                    <div className="flex items-center gap-3 pl-4 text-left">
-                        <div className="w-8 h-8 rounded-full bg-b1/20 flex items-center justify-center text-b1">
-                            <User size={16} />
+                  {/* CUSTOMER INFO */}
+                  <div className="lg:w-[27%] py-3 lg:py-4 px-4 lg:px-0">
+                    <div className="flex items-center gap-3 lg:pl-4 text-left">
+                        <div className="w-10 h-10 lg:w-8 lg:h-8 rounded-full bg-b1/20 flex items-center justify-center text-b1 shrink-0">
+                            <User size={18} />
                         </div>
-                        <div className="font-semibold text-sm text-app-text">{order.customerName}</div>
+                        <div>
+                          <div className="font-bold text-sm lg:text-sm text-app-text">{order.customerName}</div>
+                          {/* Visible only on mobile as subtitle */}
+                          <div className="lg:hidden text-[10px] text-app-text opacity-50 truncate max-w-50">{order.address}</div>
+                        </div>
                     </div>
                   </div>
 
-                  <div className="w-[25%] py-4">
+                  {/* ADDRESS - Hidden on Mobile (integrated above) */}
+                  <div className="hidden lg:block lg:w-[15%] py-4">
                     <div className="text-left font-medium text-xs text-app-text opacity-70 truncate pr-4">{order.address}</div>
                   </div>
 
-                  <div className="w-[15%] py-4 flex justify-center">
+                  {/* PAYMENT & ITEMS ROW - Side by side on mobile */}
+                  <div className="flex items-center justify-between px-4 py-3 lg:hidden border-t border-app-border/50">
+                    <div className="text-left">
+                      <p className="text-[9px] uppercase tracking-tighter opacity-40">Method</p>
+                      <p className="text-[11px] font-bold text-app-text">{order.paymentMethod}</p>
+                    </div>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setViewItems(order?.items); }}
+                      className="flex items-center gap-2 px-3 py-1.5 bg-app-bg border border-app-border rounded-xl text-app-text"
+                    >
+                      <span className="text-[10px] font-bold bg-b1 text-wh1 w-5 h-5 flex items-center justify-center rounded-full">
+                        {order?.items.length || 0}
+                      </span>
+                      <span className="text-[10px] font-black uppercase">Items</span>
+                    </button>
+                  </div>
+
+                  {/* DESKTOP PAYMENT METHOD */}
+                  <div className="hidden lg:block lg:w-[10%] py-4">
+                    <div className="text-center font-medium text-xs text-app-text opacity-70 truncate pr-4">{order.paymentMethod}</div>
+                  </div>
+
+                  {/* DESKTOP VIEW ITEMS */}
+                  <div className="hidden lg:flex lg:w-[15%] py-4 justify-center">
                     <button 
                       onClick={(e) => { e.stopPropagation(); setViewItems(order?.items); }}
                       className="group relative flex items-center gap-2 px-3 py-1 bg-app-bg border border-app-border hover:border-b1 rounded-full transition-all text-app-text cursor-pointer"
@@ -125,13 +162,19 @@ export const Orders = () => {
                     </button>
                   </div>
                   
-                  <div className="w-[10%] py-4">
-                    <span className="text-app-text font-bold text-sm">
+                  {/* TOTAL & STATUS ROW */}
+                  <div className="flex items-center justify-between lg:justify-center px-4 py-3 lg:py-4 lg:w-[10%] border-t lg:border-none border-app-border/50 bg-app-bg/20 lg:bg-transparent rounded-b-2xl lg:rounded-none">
+                    <div className="lg:hidden text-[9px] uppercase tracking-widest opacity-40">Total</div>
+                    <span className="text-app-text font-black text-sm lg:text-sm">
                       ₱{order.totalAmount?.toLocaleString()}
                     </span>
+                    <div className="lg:w-full lg:hidden">
+                      <StatusIcon status={order.status} />
+                    </div>
                   </div>
 
-                  <div className="w-[15%] py-4 flex justify-center">
+                  {/* DESKTOP STATUS */}
+                  <div className="hidden lg:flex lg:w-[15%] py-4 justify-center">
                     <StatusIcon status={order.status} />
                   </div>
                 </div>
