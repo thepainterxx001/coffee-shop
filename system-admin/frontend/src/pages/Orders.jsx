@@ -97,7 +97,7 @@ export const Orders = () => {
                   className={`
                     w-full transition-all group cursor-pointer
                     ${order.status === "success" ? "hidden" : "flex"}
-                    ${customer?.id === order._id ? "bg-b1/20 border-l-4 border-b1 lg:border-l-4" : "hover:bg-app-bg/50"}
+                    ${customer?.id === order._id ? "bg-b1/20 border border-b1" : "hover:bg-app-bg/50"}
                     flex-col lg:flex-row lg:items-center text-center mb-4 lg:mb-0 rounded-2xl lg:rounded-none border lg:border-none border-app-border lg:divide-none
                   `}
                   onClick={() => setCustomer({ id: order._id, status: order.status })}
